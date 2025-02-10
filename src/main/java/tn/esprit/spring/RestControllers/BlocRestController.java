@@ -51,4 +51,11 @@ public class BlocRestController {
     Bloc affecterBlocAFoyer(@RequestParam String nomBloc,@RequestParam String nomFoyer){
         return service.affecterBlocAFoyer(nomBloc,nomFoyer);
     }
+
+
+    //@GetMapping("findById")
+   // Bloc findById(@RequestParam long id) {
+       // return service.findById(id);
+   // }
+
 }
