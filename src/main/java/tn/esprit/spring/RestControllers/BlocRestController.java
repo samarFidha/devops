@@ -55,7 +55,5 @@ public class BlocRestController {
 
     //@GetMapping("findById")
    // Bloc findById(@RequestParam long id) {
-       // return service.findById(id);
-   // }
-
+       // return service.findByI
 }
