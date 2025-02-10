@@ -31,4 +31,16 @@ public class Chambre implements Serializable {
     @OneToMany
     List<Reservation> reservations= new ArrayList<>();
 
+
+
+
+
+
+
+
+
+
+
+
+
 }
