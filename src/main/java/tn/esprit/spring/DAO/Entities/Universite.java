@@ -23,4 +23,14 @@ public class Universite implements Serializable {
     @OneToOne(cascade = CascadeType.ALL) //ajout, Modif et supprim
     Foyer foyer;
 
+
+
+
+
+
+
+
+
+    
+
 }
