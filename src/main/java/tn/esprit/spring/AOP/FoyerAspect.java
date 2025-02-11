@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 //La classe : Aspect
 @Component
-@Aspect
+@Aspect //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 @Slf4j
 public class FoyerAspect {
     //Méthode: Advice
