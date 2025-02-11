@@ -27,4 +27,13 @@ public class Reservation implements Serializable {
     @JsonIgnore
     List<Etudiant> etudiants = new ArrayList<>();
 
+
+
+
+
+
+
+
+    
+
 }
