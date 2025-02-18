@@ -4,14 +4,17 @@ pipeline {
         DOCKER_IMAGE = 'bechirgarali/foyer-app:1.0'
     }
     stages {
-      checkout([$class: 'GitSCM',
-          branches: [[name: 'bechir']],
-          userRemoteConfigs: [[
-              url: 'https://github.com/samarFidha/devops.git',
-              credentialsId: 'token'
-          ]]
-      ])
-
+        stage('Checkout Code') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: 'bechir']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/samarFidha/devops.git',
+                        credentialsId: 'token'
+                    ]]
+                ])
+            }
+        }
 
         stage('Clean Workspace') {
             steps {
@@ -37,7 +40,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
                         sh "docker push $DOCKER_IMAGE"
                     }
                 }
