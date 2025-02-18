@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'moetazg/nginx:1.0.0'
+        DOCKER_IMAGE = 'moatezg/nginx:1.0.0'
     }
     stages {
         stage('Checkout') {
