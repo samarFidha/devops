@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "moatezg/nginx:1.0.0"
+        DOCKER_REGISTRY_URL = 'https://registry.hub.docker.com'
     }
 
     stages {
@@ -32,8 +33,10 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                withDockerRegistry([credentialsId: 'docker-hub-credentials']) {
-                    sh 'docker push ${DOCKER_IMAGE}'
+                script {
+                    withDockerRegistry([credentialsId: 'docker-hub-credentials', url: DOCKER_REGISTRY_URL]) {
+                        sh 'docker push ${DOCKER_IMAGE}'
+                    }
                 }
             }
         }
