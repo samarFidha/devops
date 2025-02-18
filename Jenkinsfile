@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "moatezg/my-nginx:latest"
+        DOCKER_IMAGE = "moatezg/nginx:latest"
     }
 
     stages {
