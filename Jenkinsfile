@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'bechirgarali/foyer-app:1.0'
+        DOCKER_IMAGE = 'bechirgarali/foyer-app:latest'
     }
     stages {
         stage('Checkout Code') {
