@@ -4,12 +4,14 @@ pipeline {
         DOCKER_IMAGE = 'bechirgarali/foyer-app:1.0'
     }
     stages {
-        stage('Checkout') {
-            steps {
-                git credentialsId: 'token'	', branch: 'bechir',
-                    url: 'https://github.com/samarFidha/devops.git'
-            }
-        }
+      checkout([$class: 'GitSCM',
+          branches: [[name: 'bechir']],
+          userRemoteConfigs: [[
+              url: 'https://github.com/samarFidha/devops.git',
+              credentialsId: 'token'
+          ]]
+      ])
+
 
         stage('Clean Workspace') {
             steps {
