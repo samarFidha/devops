@@ -1,58 +1,51 @@
 pipeline {
     agent any
-
     environment {
-        DOCKER_IMAGE = "moatezg/nginx:1.0.0"
-        DOCKER_REGISTRY_URL = 'https://registry.hub.docker.com'
+        DOCKER_IMAGE = 'moetazg/nginx:1.0.0'
     }
-
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                checkout scm
+                git credentialsId: 'git-credentials	', branch: 'moatez',
+                    url: 'https://github.com/samarFidha/devops.git'
             }
         }
 
-        stage('Maven Build') {
+        stage('Clean Workspace') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean'
             }
         }
 
-        stage('Run Unit Tests') {
+        stage('Build Project') {
             steps {
-                sh 'mvn test'
+                sh 'mvn package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${DOCKER_IMAGE} .'
+                script {
+                    sh "docker build -t $DOCKER_IMAGE ."
+                }
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Push Docker Image') {
             steps {
                 script {
-                    withDockerRegistry([credentialsId: 'docker-hub-credentials', url: DOCKER_REGISTRY_URL]) {
-                        sh 'docker push ${DOCKER_IMAGE}'
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
+                        sh "docker push $DOCKER_IMAGE"
                     }
                 }
             }
         }
 
-        stage('Deploy Container') {
+        stage('Pull Docker Image') {
             steps {
                 script {
-                    // Stop and remove existing container if it exists
-                    sh '''
-                    docker ps -aq -f name=my-nginx-container | grep -q . && \
-                    docker stop my-nginx-container && \
-                    docker rm my-nginx-container
-                    '''
-
-                    // Run the new container
-                    sh 'docker run -d --restart=always -p 8081:80 --name my-nginx-container ${DOCKER_IMAGE}'
+                    sh "docker pull $DOCKER_IMAGE"
                 }
             }
         }
