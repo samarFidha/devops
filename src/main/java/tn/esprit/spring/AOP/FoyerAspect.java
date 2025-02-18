@@ -31,6 +31,6 @@ public class FoyerAspect {
         Object obj = pjp.proceed();
         long elapsedTime = System.currentTimeMillis() - start;
         log.info("Method execution time: " + elapsedTime + " milliseconds.");
-        return null;
+        return obj;
     }
 }
