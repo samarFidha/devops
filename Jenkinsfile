@@ -64,5 +64,11 @@ pipeline {
                                      sh " docker push  chaimanaouali/foyer-app:latest"
                                           }
                     }
+ stage("Start app and db") {
+            steps {
+                sh "docker-compose up -d"
+            }
+        }
+
     }
 }
