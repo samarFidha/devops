@@ -45,7 +45,12 @@ pipeline {
                 }
             }
         }
-
+ stage('JUnit / Mockito Tests') {
+                            steps {
+                                // Run JUnit and Mockito tests using Maven
+                                sh 'mvn test'
+                            }
+                        }
          stage("Build Docker image") {
                       steps {
                           script {
