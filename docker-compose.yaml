@@ -22,6 +22,7 @@ services:
       - 8081:8081
     depends_on:
       - db
+    command: ["./wait-for-db.sh", "java", "-jar", "your-spring-app.jar"]
 
 
 volumes:
