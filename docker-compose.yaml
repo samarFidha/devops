@@ -13,6 +13,9 @@ services:
     volumes:
       - mysql:/var/lib/mysql
       - $PWD/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+
   spring_app:
     container_name: foyer-app
     image: foyer-app:latest
@@ -22,7 +25,13 @@ services:
       - 8081:8081
     depends_on:
       - db
+    networks:
+      - app-network
 
 volumes:
   mysql:
     driver: local
+
+networks:
+  app-network:
+    driver: bridge
