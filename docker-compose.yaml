@@ -1,7 +1,7 @@
 services:
   db:
     container_name: mysql
-    image: mysql
+    image: --platform=linux/amd64 mysql:8.0
     cap_add:
       - SYS_NICE
     restart: always
