@@ -15,6 +15,10 @@ services:
       - $PWD/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   spring_app:
     container_name: foyer-app
@@ -24,7 +28,8 @@ services:
     ports:
       - 8081:8081
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
 
