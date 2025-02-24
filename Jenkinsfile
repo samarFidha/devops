@@ -1,27 +1,10 @@
-/*pipeline {
-    agent any
 
-    stages {
-        stage('Checkout GitHub Repository') {
-            steps {
-                // Checkout code from GitHub repository using the correct credentials
-                git branch: 'safa-dev',
-                    url: 'https://github.com/kenza-20/Devops-projet.git',
-                    credentialsId: 'PAT-SAFA'  // The ID of the credentials you added
-            }
-        }
-
-        stage('Build Project') {
-            steps {
-                // Example build step (replace with your actual build commands)
-                echo 'Building the project...'
-            }
-        }
-    }
-}*/
 pipeline {
     agent any
-
+    environment {
+        DOCKER_HUB_USER = 'chaimanaouali'
+        DOCKER_HUB_PASSWORD = credentials('dockerhub-credentials') // Use Jenkins credentials ID
+    }
     stages {
         stage('Checkout GitHub Repository') {
             steps {
@@ -64,7 +47,7 @@ pipeline {
          stage('dockerhub') {
                                           steps {
 
-                                     sh " docker login -u chaimanaouali -p 211JFT9368"
+                                     sh 'echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USER --password-stdin'
                                      sh " docker tag foyer-app:latest chaimanaouali/foyer-app:latest"
                                      sh " docker push  chaimanaouali/foyer-app:latest"
                                           }
