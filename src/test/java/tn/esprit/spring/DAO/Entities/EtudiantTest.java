@@ -51,6 +51,21 @@ class EtudiantTest {
     }
 
     @Test
+    void testMockReservationAdded() {
+        etudiant.setReservations(new ArrayList<>());
+
+        etudiant.getReservations().add(mockReservation);
+
+
+        assertTrue(etudiant.getReservations().isEmpty());
+
+
+        assertEquals(1, etudiant.getReservations().size());
+        assertSame(mockReservation, etudiant.getReservations().get(0));
+    }
+
+
+    @Test
     void testSetters() {
         etudiant.setNomEt("UpdatedName");
         assertEquals("UpdatedName", etudiant.getNomEt());
