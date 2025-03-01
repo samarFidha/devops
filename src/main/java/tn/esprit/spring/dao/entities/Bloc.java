@@ -1,4 +1,4 @@
-package tn.esprit.spring.DAO.Entities;
+package tn.esprit.spring.dao.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -10,25 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "T_CHAMBRE")
+@Table(name = "T_BLOC")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Chambre implements Serializable {
+public class Bloc implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long idChambre;
-    @Column(unique = true)
-    long numeroChambre;
-    @Enumerated(EnumType.STRING)
-    TypeChambre typeC;
-    @ManyToOne(cascade = CascadeType.ALL)
+    long idBloc;
+    String nomBloc;
+    long capaciteBloc;
+    @ManyToOne
     @JsonIgnore
-    Bloc bloc;
-    @OneToMany
-    List<Reservation> reservations= new ArrayList<>();
-
+    Foyer foyer;
+    @OneToMany(mappedBy = "bloc", fetch = FetchType.EAGER)
+    @JsonIgnore
+    List<Chambre> chambres= new ArrayList<>();
 }

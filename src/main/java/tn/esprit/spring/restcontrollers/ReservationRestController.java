@@ -1,11 +1,9 @@
-package tn.esprit.spring.RestControllers;
+package tn.esprit.spring.restcontrollers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.spring.DAO.Entities.Reservation;
-import tn.esprit.spring.DAO.Entities.Universite;
+import tn.esprit.spring.dao.entities.Reservation;
 import tn.esprit.spring.Services.Reservation.IReservationService;
-import tn.esprit.spring.Services.Universite.IUniversiteService;
 
 import java.time.LocalDate;
 import java.util.List;

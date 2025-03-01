@@ -1,4 +1,4 @@
-package tn.esprit.spring.Config;
+package tn.esprit.spring.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -23,11 +23,12 @@ public class SpringDocConfig {
     }
 
     public Contact contactAPI() {
-        Contact contact = new Contact().name("Sirine NAIFAR")
+        return new Contact()
+                .name("Sirine NAIFAR")
                 .email("sirine.naifer@esprit.tn")
                 .url("https://www.linkedin.com/in/sirinenaifar/");
-        return contact;
     }
+
 
     @Bean
     public GroupedOpenApi allPublicApi() {

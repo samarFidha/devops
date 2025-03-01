@@ -1,9 +1,9 @@
-package tn.esprit.spring.RestControllers;
+package tn.esprit.spring.restcontrollers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.spring.DAO.Entities.Chambre;
-import tn.esprit.spring.DAO.Entities.TypeChambre;
+import tn.esprit.spring.dao.entities.Chambre;
+import tn.esprit.spring.dao.entities.TypeChambre;
 import tn.esprit.spring.Services.Chambre.IChambreService;
 
 import java.util.List;
