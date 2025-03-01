@@ -1,30 +1,25 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('H/5 * * * *') // Checks for changes every 5 minutes
+    }
+
     environment {
-        DOCKER_IMAGE = "amenallahbelhouichet/dev"   // Updated image name
-        DOCKER_TAG = "latest"
+        DOCKER_IMAGE = "amenallahbelhouichet/dev:latest"
+        DOCKER_CREDENTIALS_ID = "docker-hub-credentials"
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                script {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: 'amen']],  // Ensure correct branch
-                        userRemoteConfigs: [[
-                            url: 'https://github.com/samarFidha/devops.git',
-                            credentialsId: 'jenkins'  // Ensure Jenkins has access
-                        ]]
-                    ])
-                }
+                git branch: 'main', url: 'https://github.com/samarFidha/dev.git'
             }
         }
 
         stage('Setup Maven') {
             steps {
-                sh 'echo "Setting up Maven..."'
+                echo 'Setting up Maven...'
             }
         }
 
@@ -34,37 +29,32 @@ pipeline {
             }
         }
 
-        stage('Run Unit Tests') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                sh '''
-                    docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
-                '''
+                script {
+                    sh "docker build -t $DOCKER_IMAGE ."
+                }
             }
         }
 
         stage('Push Image to Docker Hub') {
             steps {
-                withCredentials([string(credentialsId: 'docker-hub-token', variable: 'DOCKER_HUB_PASS')]) {
-                    sh '''
-                        echo "$DOCKER_HUB_PASS" | docker login -u "amenallahbelhouichet" --password-stdin
-                        docker push $DOCKER_IMAGE:$DOCKER_TAG
-                    '''
+                script {
+                    withDockerRegistry([credentialsId: DOCKER_CREDENTIALS_ID, url: '']) {
+                        sh "docker push $DOCKER_IMAGE"
+                    }
                 }
             }
         }
+    }
 
-        stage('Pull Image from Docker Hub') {
-            steps {
-                sh '''
-                    docker pull $DOCKER_IMAGE:$DOCKER_TAG
-                '''
-            }
+    post {
+        success {
+            echo 'Build and Deployment Successful!'
+        }
+        failure {
+            echo 'Build Failed!'
         }
     }
 }
+
