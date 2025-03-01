@@ -14,7 +14,7 @@ pipeline {
                         branches: [[name: 'amen']],  
                         userRemoteConfigs: [[
                             url: 'https://github.com/samarFidha/devops.git',
-                            credentialsId: 'git-credentials'  
+                            credentialsId: 'jenkins'  
                         ]]
                     ])
                 }
