@@ -20,7 +20,8 @@ public class Universite implements Serializable {
     long idUniversite;
     String nomUniversite;
     String adresse;
-    @OneToOne(cascade = CascadeType.ALL) //ajout, Modif et supprim
+    @OneToOne(cascade = CascadeType.ALL)
+    //ajout, Modif et supprim
     Foyer foyer;
 
 
