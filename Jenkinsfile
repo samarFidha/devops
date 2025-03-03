@@ -1,67 +1,62 @@
-
 pipeline {
     agent any
-       stages {
+    environment {
+        DOCKER_USER = credentials('dockerhub-credentials')
+        SONARQUBE_CREDENTIALS = credentials('sonarqube-credentials')
+    }
+    stages {
         stage('Checkout GitHub Repository') {
             steps {
-                // Checkout code from GitHub repository using the correct credentials
                 git branch: 'Chaima',
                     url: 'https://github.com/samarFidha/devops.git',
-                    credentialsId: 'Jenkins'  // The ID of the credentials you added
+                    credentialsId: 'Jenkins'
             }
         }
 
         stage('Clean and Build Project') {
             steps {
                 script {
-                    // Nettoyer le projet (par exemple avec Maven ou Gradle)
                     echo 'Cleaning the project...'
-                    sh 'mvn clean' // Si vous utilisez Maven pour nettoyer le projet
+                    sh 'mvn clean'
 
-                    // Créer le livrable sous le dossier target (éliminer la phase de test)
                     echo 'Building the project...'
-                    sh 'mvn package -DskipTests' // Maven pour créer le livrable dans le dossier target en sautant les tests
+                    sh 'mvn package -DskipTests'
                 }
             }
         }
- stage('JUnit / Mockito Tests') {
-                            steps {
-                                // Run JUnit and Mockito tests using Maven
-                                sh 'mvn test'
-                            }
-                        }
-         stage("Build Docker image") {
-                      steps {
-                          script {
-                              // Build Docker image using the JAR file from Nexus
-                              sh " docker build -t foyer-app:latest ."
-                          }
-                      }
-                  }
 
+        stage('JUnit / Mockito Tests') {
+            steps {
+                sh 'mvn test'
+            }
+        }
 
-         stage('dockerhub') {
-                                          steps {
+        stage("Build Docker image") {
+            steps {
+                script {
+                    sh "docker build -t foyer-app:latest ."
+                }
+            }
+        }
 
-                                        sh "docker login -u chaimanaouali -p 211JFT9368"
-                                      sh " docker tag foyer-app:latest chaimanaouali/foyer-app:latest"
-                                     sh " docker push  chaimanaouali/foyer-app:latest"
-                                          }
-                    }
+        stage('Dockerhub') {
+            steps {
+                sh "docker login -u $DOCKER_USER_USR -p $DOCKER_USER_PSW"
+                sh "docker tag foyer-app:latest $DOCKER_USER_USR/foyer-app:latest"
+                sh "docker push $DOCKER_USER_USR/foyer-app:latest"
+            }
+        }
 
-                    stage('SonarQube') {
-                               steps {
+        stage('SonarQube') {
+            steps {
+                sh "mvn sonar:sonar -Dsonar.login=$SONARQUBE_CREDENTIALS_USR -Dsonar.password=$SONARQUBE_CREDENTIALS_PSW"
+            }
+        }
 
-                                       sh 'mvn sonar:sonar -Dsonar.login=admin -Dsonar.password=211JFT9368'
-
-                               }
-                           }
-
- stage("Start app and db") {
+        stage("Start app and db") {
             steps {
                 sh "docker-compose up -d"
             }
         }
-
     }
 }
