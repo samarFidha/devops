@@ -4,7 +4,6 @@ tn\esprit\spring\RestControllers\UniversiteRestController.class
 tn\esprit\spring\DAO\Repositories\FoyerRepository.class
 tn\esprit\spring\Services\Bloc\BlocService.class
 tn\esprit\spring\DAO\Repositories\ReservationRepository.class
-tn\esprit\spring\Schedular\test.class
 tn\esprit\spring\DAO\Entities\Chambre$ChambreBuilder.class
 tn\esprit\spring\Services\Chambre\ChambreService$1.class
 tn\esprit\spring\Services\Etudiant\EtudiantService.class
@@ -40,5 +39,6 @@ tn\esprit\spring\RestControllers\ChambreRestController.class
 tn\esprit\spring\Services\Reservation\ReservationService.class
 tn\esprit\spring\DAO\Entities\Bloc.class
 tn\esprit\spring\RestControllers\ReservationRestController.class
+tn\esprit\spring\Schedular\Test.class
 tn\esprit\spring\Services\Chambre\ChambreService.class
 tn\esprit\spring\Schedular\Schedular.class

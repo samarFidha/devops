@@ -52,6 +52,15 @@ pipeline {
                                      sh " docker push  chaimanaouali/foyer-app:latest"
                                           }
                     }
+
+                    stage('SonarQube') {
+                               steps {
+                                   withCredentials([string(credentialsId: 'sonar-password', variable: 'SONAR_PASSWORD')]) {
+                                       sh 'mvn sonar:sonar -Dsonar.login=admin -Dsonar.password=$SONAR_PASSWORD'
+                                   }
+                               }
+                           }
+
  stage("Start app and db") {
             steps {
                 sh "docker-compose up -d"

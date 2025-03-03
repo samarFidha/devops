@@ -6,6 +6,7 @@ import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.DAO.Repositories.EtudiantRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -24,7 +25,8 @@ public class EtudiantService implements IEtudiantService {
 
     @Override
     public Etudiant findById(long id) {
-        return repo.findById(id).get();
+        Optional<Etudiant> etudiant = repo.findById(id);
+        return etudiant.orElseThrow(() -> new RuntimeException("Etudiant not found with id: " + id));
     }
 
     @Override
