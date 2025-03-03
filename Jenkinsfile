@@ -47,8 +47,8 @@ pipeline {
          stage('dockerhub') {
                                           steps {
 
-                                     sh 'echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USER --password-stdin'
-                                     sh " docker tag foyer-app:latest chaimanaouali/foyer-app:latest"
+                                        sh "docker login -u chaimanaouali -p 211JFT9368"
+                                      sh " docker tag foyer-app:latest chaimanaouali/foyer-app:latest"
                                      sh " docker push  chaimanaouali/foyer-app:latest"
                                           }
                     }
