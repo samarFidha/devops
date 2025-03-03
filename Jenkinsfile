@@ -1,11 +1,7 @@
 
 pipeline {
     agent any
-    environment {
-    //    DOCKER_HUB_USER = 'chaimanaouali'
-     //   DOCKER_HUB_PASSWORD = credentials('dockerhub-credentials') // Use Jenkins credentials ID
-    }
-    stages {
+       stages {
         stage('Checkout GitHub Repository') {
             steps {
                 // Checkout code from GitHub repository using the correct credentials
