@@ -57,8 +57,7 @@ class EtudiantTest {
         etudiant.getReservations().add(mockReservation);
 
 
-        assertTrue(etudiant.getReservations().isEmpty());
-
+        assertFalse(etudiant.getReservations().isEmpty());
 
         assertEquals(1, etudiant.getReservations().size());
         assertSame(mockReservation, etudiant.getReservations().get(0));
