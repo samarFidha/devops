@@ -10,10 +10,5 @@ COPY target/Foyer-0.0.1-SNAPSHOT.jar app.jar
 # Étape 4 : Exposer le port (exemple : 8080)
 EXPOSE 8080
 
-# Étape 5 : Exécuter l'application
-<<<<<<< HEAD
-CMD ["java", "-jar", "app.jar"]
-=======
 CMD ["java", "-jar", "app.jar"]
 
->>>>>>> cc6682135c87ad0a97b893a8d8b7aa4ed0aecbb7
