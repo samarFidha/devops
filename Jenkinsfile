@@ -22,11 +22,7 @@ pipeline {
             }
         }
 
-        stage('Build Project') {
-            steps {
-                sh 'mvn package -DskipTests'
-            }
-        }
+
 
         stage('SonarQube Analysis') {
             steps {
