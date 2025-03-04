@@ -15,7 +15,9 @@
     <description>Foyer</description>
     <properties>
         <java.version>17</java.version>
+
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,8 +47,52 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.8.0</version>
+            <scope>test</scope>
+        </dependency>
+
+
+
+        <!-- Mockito JUnit 5 integration -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.8.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.3.0</version> <!-- Use the latest version -->
+        </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.host.url>http://localhost:9000/</sonar.host.url>
+
+                <!--suppress UnresolvedMavenProperty -->
+                <sonar.login>${env.SONAR_LOGIN}</sonar.login>
+                <sonar.jacoco.reportPath>target/site/jacoco/jacoco.xml</sonar.jacoco.reportPath>
+            </properties>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>
@@ -60,6 +106,12 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
             </plugin>
         </plugins>
     </build>

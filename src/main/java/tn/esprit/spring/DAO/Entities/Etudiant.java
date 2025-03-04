@@ -18,16 +18,19 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Etudiant implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long idEtudiant;
+
     String nomEt;
     String prenomEt;
     long cin;
     String ecole;
     LocalDate dateNaissance;
-    @ManyToMany(mappedBy = "etudiants")
-    List<Reservation> reservations= new ArrayList<>();
 
+    // Making the 'reservations' field private
+    @ManyToMany(mappedBy = "etudiants")
+    private List<Reservation> reservations = new ArrayList<>();
 
 }

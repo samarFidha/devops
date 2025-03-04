@@ -17,13 +17,18 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Foyer implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long idFoyer;
+
     String nomFoyer;
     long capaciteFoyer;
+
     @OneToOne(mappedBy = "foyer")
     Universite universite;
+
+    // Making the 'blocs' field private
     @OneToMany(mappedBy = "foyer")
-    List<Bloc> blocs= new ArrayList<>();
+    private List<Bloc> blocs = new ArrayList<>();
 }

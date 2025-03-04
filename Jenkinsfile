@@ -22,9 +22,27 @@ pipeline {
             }
         }
 
-        stage('Build Project') {
+        stage('Build & Test Project') {
             steps {
-                sh 'mvn package -DskipTests'
+                sh 'mvn verify'  // Compile, run tests & generate JaCoCo report
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv('SonarQube') {
+                        withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
+                            sh '''
+                                mvn sonar:sonar \
+                                  -Dsonar.projectKey=projectSonar \
+                                  -Dsonar.host.url=http://172.24.32.66:9000 \
+                                  -Dsonar.login=squ_789469ea455f4900ed2d61b686585d7299dfcfeb \
+                                  -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
+                }
             }
         }
 
@@ -53,6 +71,14 @@ pipeline {
                     sh "docker pull $DOCKER_IMAGE"
                 }
             }
+        }
+    }
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed! Please check the logs.'
         }
     }
 }

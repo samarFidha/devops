@@ -1,6 +1,6 @@
 package tn.esprit.spring.Services.Reservation;
 
-import tn.esprit.spring.DAO.Entities.Foyer;
+
 import tn.esprit.spring.DAO.Entities.Reservation;
 
 import java.time.LocalDate;
@@ -16,8 +16,7 @@ public interface IReservationService {
     long  getReservationParAnneeUniversitaire(LocalDate debutAnnee, LocalDate finAnnee ) ;
     String annulerReservation (long cinEtudiant) ;
 
-    void affectReservationAChambre(String idRes,long idChambre);
-    void annulerReservations();
+
 
 
 

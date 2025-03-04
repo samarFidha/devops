@@ -1,8 +1,6 @@
 package tn.esprit.spring.Services.Foyer;
 
-import tn.esprit.spring.DAO.Entities.Etudiant;
 import tn.esprit.spring.DAO.Entities.Foyer;
-import tn.esprit.spring.DAO.Entities.Reservation;
 import tn.esprit.spring.DAO.Entities.Universite;
 
 import java.util.List;
@@ -22,8 +20,6 @@ public interface IFoyerService {
 
     Universite desaffecterFoyerAUniversite(long idUniversite);
 
-    Foyer ajouterFoyerEtAffecterAUniversite (Foyer foyer, long idUniversite); // Universite: Parent / Foyer:Child
+    Foyer ajouterFoyerEtAffecterAUniversite(Foyer foyer, long idUniversite); // Universite: Parent / Foyer:Child
     Foyer ajoutFoyerEtBlocs(Foyer foyer);
-
-
 }

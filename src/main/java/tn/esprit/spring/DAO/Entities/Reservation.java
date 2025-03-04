@@ -19,12 +19,16 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Reservation implements Serializable {
+
     @Id
     String idReservation;
+
     LocalDate anneeUniversitaire;
+
     boolean estValide;
+
+    // Making the 'etudiants' field private
     @ManyToMany
     @JsonIgnore
-    List<Etudiant> etudiants = new ArrayList<>();
-    
+    private List<Etudiant> etudiants = new ArrayList<>();
 }

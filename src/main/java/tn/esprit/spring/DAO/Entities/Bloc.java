@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
 @Entity
 @Table(name = "T_BLOC")
 @Getter
@@ -21,12 +20,16 @@ public class Bloc implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long idBloc;
+
     String nomBloc;
     long capaciteBloc;
+
     @ManyToOne
     @JsonIgnore
     Foyer foyer;
-    @OneToMany(mappedBy = "bloc", fetch = FetchType.EAGER)
+
+    @OneToMany(mappedBy = "bloc", fetch = FetchType.LAZY)
     @JsonIgnore
-    List<Chambre> chambres= new ArrayList<>();
+    private List<Chambre> chambres = new ArrayList<>();
+
 }

@@ -24,7 +24,8 @@ public class EtudiantService implements IEtudiantService {
 
     @Override
     public Etudiant findById(long id) {
-        return repo.findById(id).get();
+        // Check if the Optional contains a value before calling .get()
+        return repo.findById(id).orElse(null);  // You could also throw a custom exception or return a default value instead of null if needed.
     }
 
     @Override
