@@ -11,8 +11,8 @@ pipeline {
                     userRemoteConfigs: [[
                         url: 'https://github.com/samarFidha/devops.git',
                         credentialsId: 'token'
-                    ]]
-                ])
+                    ]]]
+                )
             }
         }
 
@@ -30,11 +30,11 @@ pipeline {
                             // Run SonarQube analysis with verbose output
                             sh '''
                                 mvn clean install
-                               mvn clean verify sonar:sonar \
-                                 -Dsonar.projectKey=sonar \
-                                 -Dsonar.projectName='sonar' \
-                                 -Dsonar.host.url=http://localhost:9000 \
-                                 -Dsonar.token=sqp_527642463f44a9624536b2c4d8934deb6c257ad0
+                                mvn clean verify sonar:sonar \
+                                  -Dsonar.projectKey=sonar \
+                                  -Dsonar.projectName='sonar' \
+                                  -Dsonar.host.url=http://localhost:9000 \
+                                  -Dsonar.login=$SONAR_TOKEN \
                                   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                             '''
                         }
