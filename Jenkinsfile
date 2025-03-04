@@ -22,7 +22,11 @@ pipeline {
             }
         }
 
-
+        stage('Build Project') {
+            steps {
+                sh 'mvn package -DskipTests'
+            }
+        }
 
         stage('SonarQube Analysis') {
             steps {
@@ -33,7 +37,7 @@ pipeline {
                                 mvn sonar:sonar \
                                   -Dsonar.projectKey=projectSonar \
                                   -Dsonar.host.url=http://172.24.32.66:9000 \
-                                  -Dsonar.login=squ_789469ea455f4900ed2d61b686585d7299dfcfeb \
+                                  -Dsonar.login=$SONAR_TOKEN \
                                   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                             '''
                         }
