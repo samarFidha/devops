@@ -30,11 +30,11 @@ pipeline {
                             // Run SonarQube analysis with verbose output
                             sh '''
                                 mvn clean install
-                                mvn sonar:sonar \
-                                  -X \
-                                  -Dsonar.projectKey=projectSonar \
-                                  -Dsonar.host.url=http://172.24.32.66:9000 \
-                                  -Dsonar.login=$SONAR_TOKEN \
+                               mvn clean verify sonar:sonar \
+                                 -Dsonar.projectKey=sonar \
+                                 -Dsonar.projectName='sonar' \
+                                 -Dsonar.host.url=http://localhost:9000 \
+                                 -Dsonar.token=sqp_527642463f44a9624536b2c4d8934deb6c257ad0
                                   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                             '''
                         }
