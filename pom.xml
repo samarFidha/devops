@@ -15,7 +15,6 @@
     <description>Foyer</description>
     <properties>
         <java.version>17</java.version>
-
     </properties>
 
     <dependencies>
@@ -62,8 +61,6 @@
             <scope>test</scope>
         </dependency>
 
-
-
         <!-- Mockito JUnit 5 integration -->
         <dependency>
             <groupId>org.mockito</groupId>
@@ -87,12 +84,14 @@
             <properties>
                 <sonar.host.url>http://localhost:9000/</sonar.host.url>
 
+                <!-- Use environment variable for the token -->
                 <!--suppress UnresolvedMavenProperty -->
-                <sonar.login>${env.SONAR_LOGIN}</sonar.login>
+                <sonar.login>${env.SONAR_TOKEN}</sonar.login>
                 <sonar.jacoco.reportPath>target/site/jacoco/jacoco.xml</sonar.jacoco.reportPath>
             </properties>
         </profile>
     </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -115,5 +114,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
