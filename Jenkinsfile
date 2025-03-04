@@ -22,15 +22,16 @@ pipeline {
             }
         }
 
-
-
         stage('SonarQube Analysis') {
             steps {
                 script {
                     withSonarQubeEnv('SonarQube') {
                         withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
+                            // Run SonarQube analysis with verbose output
                             sh '''
+                                mvn clean install
                                 mvn sonar:sonar \
+                                  -X \
                                   -Dsonar.projectKey=projectSonar \
                                   -Dsonar.host.url=http://172.24.32.66:9000 \
                                   -Dsonar.login=$SONAR_TOKEN \
