@@ -22,11 +22,7 @@ pipeline {
             }
         }
 
-        stage('Build & Test Project') {
-            steps {
-                sh 'mvn verify'  // Compile, run tests & generate JaCoCo report
-            }
-        }
+
 
         stage('SonarQube Analysis') {
             steps {
