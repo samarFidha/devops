@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = 'moatezg/nginx:1.0.0'
+        SONARQUBE_CREDENTIALS = credentials('sonarqube-credentials')
     }
     stages {
         stage('Checkout') {
@@ -60,6 +61,12 @@ pipeline {
                     sh "docker inspect $DOCKER_IMAGE" // Verify the image was pulled
                 }
             }
+        }
+
+        stage('SonarQube') {
+                    steps {
+                        sh "mvn sonar:sonar -Dsonar.login=$SONARQUBE_CREDENTIALS_USR -Dsonar.password=$SONARQUBE_CREDENTIALS_PSW"
+                    }
         }
     }
 }
