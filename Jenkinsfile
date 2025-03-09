@@ -48,5 +48,11 @@ pipeline {
             }
         }
     }
+
+    stage('Run Tests with Spring Profile') {
+                steps {
+                    sh 'mvn test -Dspring.profiles.active=test'
+                }
+            }
 }
 
