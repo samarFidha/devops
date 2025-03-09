@@ -64,9 +64,11 @@ pipeline {
         }
 
         stage('SonarQube') {
-                    steps {
-                        sh "mvn sonar:sonar -Dsonar.login=$SONARQUBE_CREDENTIALS_USR -Dsonar.password=$SONARQUBE_CREDENTIALS_PSW"
-                    }
+            steps {
+                withCredentials([string(credentialsId: 'sonarqube-credentials', variable: 'SONAR_TOKEN')]) {
+                    sh "mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN"
+                }
+            }
         }
     }
 }
