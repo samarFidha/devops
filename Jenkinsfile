@@ -6,8 +6,11 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'git-credentials	', branch: 'moatez',
-                    url: 'https://github.com/samarFidha/devops.git'
+                git(
+                    credentialsId: 'github_docker',
+                    branch: 'moatez',
+                    url: 'git@github.com:samarFidha/devops.git'
+                )
             }
         }
 
@@ -19,13 +22,14 @@ pipeline {
 
         stage('Build Project') {
             steps {
-                sh 'mvn package -DskipTests'
+                sh 'mvn package' // Removed -DskipTests for better quality control
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
+                    sh 'test -f Dockerfile && echo "Dockerfile found" || exit 1'
                     sh "docker build -t $DOCKER_IMAGE ."
                 }
             }
@@ -37,6 +41,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
                         sh "docker push $DOCKER_IMAGE"
+                        sh 'docker logout' // Log out after pushing
                     }
                 }
             }
@@ -46,6 +51,7 @@ pipeline {
             steps {
                 script {
                     sh "docker pull $DOCKER_IMAGE"
+                    sh "docker inspect $DOCKER_IMAGE" // Verify the image was pulled
                 }
             }
         }
