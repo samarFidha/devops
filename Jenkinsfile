@@ -26,6 +26,12 @@ pipeline {
             }
         }
 
+        stage('JUnit / Mockito Tests') {
+                    steps {
+                        sh 'mvn test'
+                    }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
