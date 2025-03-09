@@ -34,7 +34,7 @@ pipeline {
             }
         }
 
-        stage('Run Tests with Spring Profile') {  // ✅ Moved inside 'stages'
+        stage('Run Tests with Spring Profile') {
             steps {
                 sh 'mvn test -Dspring.profiles.active=test'
             }
@@ -46,12 +46,11 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
+          stage('Push to Docker Hub') {
             steps {
-                withDockerRegistry([credentialsId: 'docker-hub-token', url: 'https://github.com/samarFidha/devops.git']) {
-                    sh 'docker push ${DOCKER_IMAGE}'
+                withDockerRegistry([credentialsId: 'docker-hub-token', url: '']) {
+                    sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
-    }
 }
