@@ -48,7 +48,7 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: '']) {
+                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://github.com/samarFidha/devops.git']) {
                     sh 'docker push ${DOCKER_IMAGE}'
                 }
             }
