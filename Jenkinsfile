@@ -34,6 +34,12 @@ pipeline {
             }
         }
 
+        stage('Run Tests with Spring Profile') {  // ✅ Moved inside 'stages'
+            steps {
+                sh 'mvn test -Dspring.profiles.active=test'
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t ${DOCKER_IMAGE} .'
@@ -48,11 +54,4 @@ pipeline {
             }
         }
     }
-
-    stage('Run Tests with Spring Profile') {
-                steps {
-                    sh 'mvn test -Dspring.profiles.active=test'
-                }
-            }
 }
-
