@@ -70,5 +70,19 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Nexus') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'nexus-deploy-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                    sh """
+                        mvn deploy \
+                            -DrepositoryId=deploymentRepo \
+                            -Durl=http://172.19.181.217:8081/repository/maven-releases/ \
+                            -Dusername=$NEXUS_USER \
+                            -Dpassword=$NEXUS_PASS
+                    """
+                }
+            }
+        }
     }
 }
