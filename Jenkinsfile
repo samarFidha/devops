@@ -2,6 +2,8 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = 'bechirgarali/foyer-app:latest'
+        NEXUS_URL = 'http://172.24.32.66:8081'
+        NEXUS_REPO = 'maven-releases'
     }
     stages {
         stage('Checkout Code') {
@@ -27,9 +29,7 @@ pipeline {
                 script {
                     withSonarQubeEnv('SonarQube') {
                         withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
-                            // Run SonarQube analysis with verbose output
                             sh '''
-                                mvn clean install
                                 mvn clean verify sonar:sonar \
                                   -Dsonar.projectKey=sonar \
                                   -Dsonar.projectName='sonar' \
@@ -43,11 +43,24 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Deploy to Nexus') {
             steps {
                 script {
-                    sh "docker build -t $DOCKER_IMAGE ."
+                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                        sh '''
+                            mvn deploy \
+                              -DaltDeploymentRepository=${NEXUS_REPO}::default::${NEXUS_URL}/repository/${NEXUS_REPO}/ \
+                              -Dnexus.username=$NEXUS_USER \
+                              -Dnexus.password=$NEXUS_PASS
+                        '''
+                    }
                 }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t $DOCKER_IMAGE ."
             }
         }
 
@@ -64,9 +77,7 @@ pipeline {
 
         stage('Pull Docker Image') {
             steps {
-                script {
-                    sh "docker pull $DOCKER_IMAGE"
-                }
+                sh "docker pull $DOCKER_IMAGE"
             }
         }
     }
