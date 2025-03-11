@@ -75,7 +75,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'nexus-deploy-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                     sh """
-                        mvn deploy \
+                        mvn deploy -s /usr/share/maven/conf/settings.xml \
                             -DrepositoryId=deploymentRepo \
                             -Durl=http://172.19.181.217:8081/repository/maven-releases/ \
                             -Dusername=$NEXUS_USER \
