@@ -3,7 +3,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'bechirgarali/foyer-app:latest'
         NEXUS_URL = 'http://172.24.32.66:8081'
-        NEXUS_REPO = 'maven-releases'
+        NEXUS_REPO_RELEASES = 'maven-releases'
+        NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
     }
     stages {
         stage('Checkout Code') {
@@ -30,7 +31,7 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
                             sh '''
-                                mvn clean verify sonar:sonar \
+                                mvn verify sonar:sonar \
                                   -Dsonar.projectKey=sonar \
                                   -Dsonar.projectName='sonar' \
                                   -Dsonar.host.url=http://localhost:9000 \
@@ -47,12 +48,15 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        sh '''
+                        def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                        def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+
+                        sh """
                             mvn deploy \
-                              -DaltDeploymentRepository=${NEXUS_REPO}::default::${NEXUS_URL}/repository/${NEXUS_REPO}/ \
+                              -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
                               -Dnexus.username=$NEXUS_USER \
                               -Dnexus.password=$NEXUS_PASS
-                        '''
+                        """
                     }
                 }
             }
@@ -70,6 +74,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
                         sh "docker push $DOCKER_IMAGE"
+                        sh "docker logout"
                     }
                 }
             }
