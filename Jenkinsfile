@@ -46,10 +46,32 @@ pipeline {
             }
         }
 
+
+
         stage('Push to Docker Hub') {
             steps {
                 withDockerRegistry([credentialsId: 'docker-hub-token', url: '']) {
                     sh "docker push ${DOCKER_IMAGE}"
+                }
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv('SonarQube') {
+                        withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
+                            // Run SonarQube analysis with verbose output
+                            sh '''
+                                mvn clean install
+                                mvn clean verify sonar:sonar \
+                                  -Dsonar.projectKey=sonar \
+                                  -Dsonar.projectName='sonar' \
+                                  -Dsonar.host.url=http://localhost:9000 \
+                                  -Dsonar.login=$SONAR_TOKEN \
+                                  -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                            '''
+                        }
+                    }
                 }
             }
         }
