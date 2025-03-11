@@ -77,12 +77,13 @@ pipeline {
                     sh """
                         mvn deploy -s /usr/share/maven/conf/settings.xml \
                             -DrepositoryId=nexus-snapshots \
-                            -Durl=http://172.19.181.217:8081/repository/maven-releases/ \
+                            -Durl=http://172.19.181.217:8081/repository/maven-snapshots/ \
                             -Dusername=$NEXUS_USER \
                             -Dpassword=$NEXUS_PASS
                     """
                 }
             }
         }
+
     }
 }
