@@ -32,6 +32,25 @@ pipeline {
             }
         }
 
+                stage('Deploy to Nexus') {
+                    steps {
+                        script {
+                            withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                                def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                                def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+
+                                sh """
+                                    mvn deploy \
+                                      -s ${MAVEN_SETTINGS_PATH} \
+                                      -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
+                                      -Dnexus.username=$NEXUS_USER \
+                                      -Dnexus.password=$NEXUS_PASS
+                                """
+                            }
+                        }
+                    }
+                }
+
         stage('SonarQube Analysis') {
             steps {
                 script {
@@ -51,24 +70,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Nexus') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
-                        def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
 
-                        sh """
-                            mvn deploy \
-                              -s ${MAVEN_SETTINGS_PATH} \
-                              -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
-                              -Dnexus.username=$NEXUS_USER \
-                              -Dnexus.password=$NEXUS_PASS
-                        """
-                    }
-                }
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
