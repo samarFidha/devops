@@ -5,6 +5,7 @@ pipeline {
         NEXUS_URL = 'http://172.24.32.66:8081'
         NEXUS_REPO_RELEASES = 'maven-releases'
         NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
+        MAVEN_SETTINGS_PATH = '/usr/share/maven/conf/settings.xml'  // Updated path to settings.xml
     }
     stages {
         stage('Checkout Code') {
@@ -18,7 +19,6 @@ pipeline {
                 )
             }
         }
-
         stage('Clean Workspace') {
             steps {
                 sh 'mvn clean'
@@ -60,7 +60,7 @@ pipeline {
 
                         sh """
                             mvn deploy \
-                              -s /path/to/settings.xml \
+                              -s ${MAVEN_SETTINGS_PATH} \
                               -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
                               -Dnexus.username=$NEXUS_USER \
                               -Dnexus.password=$NEXUS_PASS
