@@ -25,7 +25,7 @@ pipeline {
             }
         }
 
-       // New Stage: Run Tests with Spring Profile
+        // New Stage: Run Tests with Spring Profile
         stage('Run Tests with Spring Profile') {
             steps {
                 sh 'mvn test -Dspring.profiles.active=test'
@@ -51,23 +51,25 @@ pipeline {
             }
         }
 
-             stage('Deploy to Nexus') {
-                 steps {
-                     script {
-                         withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                             def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
-                             def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+        stage('Deploy to Nexus') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                        def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                        def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
 
-                             sh """
-                                 mvn deploy \
-                                   -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
-                                   -DrepositoryId=${repo}
-                             """
-                         }
-                     }
-                 }
-             }
-
+                        // Updated deploy command to include username and password for Nexus
+                        sh """
+                            mvn deploy \
+                              -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
+                              -DrepositoryId=${repo} \
+                              -Dusername=$NEXUS_USER \
+                              -Dpassword=$NEXUS_PASS
+                        """
+                    }
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
