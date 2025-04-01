@@ -2,8 +2,9 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = 'bechirgarali/foyer-app:latest'
-        NEXUS_URL = 'http://172.24.32.66:8081'
-        MAVEN_SETTINGS_PATH = '/usr/share/maven/conf/settings.xml'
+         NEXUS_URL = 'http://172.24.32.66:8081'
+         NEXUS_REPO_RELEASES = 'maven-releases'
+         NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
     }
     stages {
         stage('Checkout Code') {
@@ -48,21 +49,24 @@ pipeline {
             }
         }
 
-   stage('Deploy to Nexus') {
-       steps {
-           script {
-               withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                   sh '''
-                       mvn -X deploy \
-                         -s ${MAVEN_SETTINGS_PATH} \
-                         -DaltDeploymentRepository=maven-releases::default::http://172.24.32.66:8081/repository/maven-releases/ \
-                         -Dnexus.username=$NEXUS_USER \
-                         -Dnexus.password=$NEXUS_PASS
-                   '''
-               }
-           }
-       }
-   }
+ stage('Deploy to Nexus') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                        def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                        def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+
+                        sh """
+                            mvn deploy \
+                              -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
+                              -Dnexus.username=$NEXUS_USER \
+                              -Dnexus.password=$NEXUS_PASS
+                        """
+                    }
+                }
+            }
+        }
+
 
 
 
