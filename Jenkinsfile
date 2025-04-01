@@ -49,23 +49,31 @@ pipeline {
             }
         }
 
-        stage('Deploy to Nexus') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
-                        def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+    stage('Deploy to Nexus') {
+        steps {
+            script {
+                // Retrieve Nexus credentials
+                withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
 
-                        // Deploy to Nexus using the configured credentials
-                        sh """
-                            mvn clean deploy -X \
-                            -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
-                            -s /var/jenkins_home/.m2/settings.xml
-                        """
-                    }
+                    // Get the project version from Maven
+                    def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+
+                    // Determine the repository based on project version (SNAPSHOT or RELEASE)
+                    def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+
+                    // Deploy to Nexus
+                    sh """
+                        mvn clean deploy -X \
+                        -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
+                        -Dusername=${NEXUS_USER} \
+                        -Dpassword=${NEXUS_PASS} \
+                        -s /var/jenkins_home/.m2/settings.xml
+                    """
                 }
             }
         }
+    }
+
 
         stage('Build Docker Image') {
             steps {
