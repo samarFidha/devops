@@ -56,20 +56,21 @@ pipeline {
                         // Get the project version
                         def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
 
-                        // Determine the repository based on the project version (snapshot or release)
-                        def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+                        // Define Nexus repository based on version
+                        def repo = projectVersion.endsWith('-SNAPSHOT') ? 'maven-snapshots' : 'maven-releases'
 
-                        // Deploy to Nexus using the configured credentials
+                        // Deploy to Nexus
                         sh """
                             echo "Deploying to Nexus Repository: ${repo}"
                             mvn clean deploy -X \
-                            -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
-                            -s /usr/share/maven/conf/settings.xml   
+                            -DaltDeploymentRepository=${repo}::default::http://172.24.32.66:8081/repository/${repo}/ \
+                            -s /usr/share/maven/conf/settings.xml
                         """
                     }
                 }
             }
         }
+
 
 
 
