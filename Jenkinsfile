@@ -49,30 +49,34 @@ pipeline {
             }
         }
 
-    stage('Deploy to Nexus') {
-        steps {
-            script {
-                // Retrieve Nexus credentials
-                withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+stage('Deploy to Nexus') {
+    steps {
+        script {
+            // Retrieve Nexus credentials
+            withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
 
-                    // Get the project version from Maven
-                    def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                // Get the project version from Maven
+                def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
 
-                    // Determine the repository based on project version (SNAPSHOT or RELEASE)
-                    def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+                // Determine the repository based on project version (SNAPSHOT or RELEASE)
+                def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
 
-                    // Deploy to Nexus
-                    sh """
-                        mvn clean deploy -X \
-                        -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
-                        -Dusername=${NEXUS_USER} \
-                        -Dpassword=${NEXUS_PASS} \
-                        -s /var/jenkins_home/.m2/settings.xml
-                    """
-                }
+                // Debugging output for credentials and deployment info
+                echo "Deploying version: ${projectVersion} to repository: ${repo}"
+
+                // Deploy to Nexus using the credentials
+                sh """
+                    mvn clean deploy -X \
+                    -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
+                    -Dusername=${NEXUS_USER} \
+                    -Dpassword=${NEXUS_PASS} \
+                    -s /var/jenkins_home/.m2/settings.xml
+                """
             }
         }
     }
+}
+
 
 
         stage('Build Docker Image') {
