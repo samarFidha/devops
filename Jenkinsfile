@@ -53,19 +53,24 @@ stage('Deploy to Nexus') {
     steps {
         script {
             withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                // Get the project version
                 def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+
+                // Determine the repository based on the project version (snapshot or release)
                 def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
 
                 // Deploy to Nexus using the configured credentials
                 sh """
+                    echo "Deploying to Nexus Repository: ${repo}"
                     mvn clean deploy -X \
                     -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
-                    -s /usr/share/maven/conf/settings.xml  // Specify your settings.xml location here
+                    -s '/usr/share/maven/conf/settings.xml'  // Ensure the path is quoted correctly
                 """
             }
         }
     }
 }
+
 
 
 
