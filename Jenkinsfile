@@ -52,21 +52,21 @@ pipeline {
 stage('Deploy to Nexus') {
     steps {
         script {
-            withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+            withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                 def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
                 def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+                def serverId = projectVersion.endsWith('-SNAPSHOT') ? 'maven-snapshots' : 'maven-releases'
 
-                // Deploy to Nexus with debugging enabled
+                // Deploy to Nexus using the configured credentials
                 sh """
                     mvn deploy -X \
-                    -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
-                    -Dnexus.username=$NEXUS_USER \
-                    -Dnexus.password=$NEXUS_PASS
+                    -DaltDeploymentRepository=${serverId}::default::${NEXUS_URL}/repository/${repo}/
                 """
             }
         }
     }
 }
+
 
 
 
