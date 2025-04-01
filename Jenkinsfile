@@ -55,14 +55,13 @@ pipeline {
                         sh '''
                             mvn deploy \
                               -s ${MAVEN_SETTINGS_PATH} \
-                              -DaltDeploymentRepository=maven-releases::default::http://172.24.32.66:8081/repository/maven-releases/ \
-                              -Dnexus.username=admin \
-                              -Dnexus.password=bechir
+                              -DaltDeploymentRepository=maven-releases::default::${NEXUS_URL}/repository/maven-releases/
                         '''
                     }
                 }
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
