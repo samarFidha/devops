@@ -64,12 +64,13 @@ pipeline {
                             echo "Deploying to Nexus Repository: ${repo}"
                             mvn clean deploy -X \
                             -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
-                            -s /usr/share/maven/conf/settings.xml  // Ensure no extra slashes or issues with the path
+                            -s /usr/share/maven/conf/settings.xml   
                         """
                     }
                 }
             }
         }
+
 
 
 
