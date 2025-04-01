@@ -48,21 +48,22 @@ pipeline {
             }
         }
 
-         stage('Deploy to Nexus') {
-             steps {
-                 script {
-                     withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                         sh '''
-                             mvn -X deploy \
-                               -s ${MAVEN_SETTINGS_PATH} \
-                               -DaltDeploymentRepository=maven-releases::default::http://172.24.32.66:8081/repository/maven-releases/ \
-                               -Dnexus.username=$NEXUS_USER \
-                               -Dnexus.password=$NEXUS_PASS
-                         '''
-                     }
-                 }
-             }
-         }
+   stage('Deploy to Nexus') {
+       steps {
+           script {
+               withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                   sh '''
+                       mvn -X deploy \
+                         -s ${MAVEN_SETTINGS_PATH} \
+                         -DaltDeploymentRepository=maven-releases::default::http://172.24.32.66:8081/repository/maven-releases/ \
+                         -Dnexus.username=$NEXUS_USER \
+                         -Dnexus.password=$NEXUS_PASS
+                   '''
+               }
+           }
+       }
+   }
+
 
 
 
