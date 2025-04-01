@@ -31,7 +31,8 @@ public class Bloc implements Serializable {
 
     @OneToMany(mappedBy = "bloc", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    List<Chambre> chambres = new ArrayList<>();
+    private List<Chambre> chambres = new ArrayList<>();
+
 
     // ✅ Custom builder to ensure `chambres` is always initialized
     @Builder
