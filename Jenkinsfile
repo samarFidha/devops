@@ -55,17 +55,18 @@ stage('Deploy to Nexus') {
             withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                 def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
                 def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
-                def serverId = projectVersion.endsWith('-SNAPSHOT') ? 'maven-snapshots' : 'maven-releases'
 
                 // Deploy to Nexus using the configured credentials
                 sh """
-                    mvn deploy -X \
-                    -DaltDeploymentRepository=${serverId}::default::${NEXUS_URL}/repository/${repo}/
+                    mvn clean deploy -X \
+                    -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
+                    -s /var/jenkins_home/.m2/settings.xml
                 """
             }
         }
     }
 }
+
 
 
 
