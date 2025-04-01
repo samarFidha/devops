@@ -87,17 +87,17 @@
 
     </dependencies>
 
-    <!--  Nexus Repository Configuration -->
     <distributionManagement>
         <repository>
-            <id>maven-releases</id>  <!-- ✅ Matches settings.xml -->
-            <url>http://localhost:8081/repository/maven-releases/</url>
+            <id>maven-releases</id>
+            <url>http://172.24.32.66:8081/repository/maven-releases/</url> <!-- Updated to use the correct Nexus IP -->
         </repository>
         <snapshotRepository>
-            <id>maven-snapshots</id>  <!-- ✅ Matches settings.xml -->
-            <url>http://localhost:8081/repository/maven-snapshots/</url>
+            <id>maven-snapshots</id>
+            <url>http://172.24.32.66:8081/repository/maven-snapshots/</url> <!-- Updated to use the correct Nexus IP -->
         </snapshotRepository>
     </distributionManagement>
+
 
 
     <build>
