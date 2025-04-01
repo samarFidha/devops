@@ -2,9 +2,9 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = 'bechirgarali/foyer-app:latest'
-         NEXUS_URL = 'http://172.24.32.66:8081'
-         NEXUS_REPO_RELEASES = 'maven-releases'
-         NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
+        NEXUS_URL = 'http://172.24.32.66:8081'
+        NEXUS_REPO_RELEASES = 'maven-releases'
+        NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
     }
     stages {
         stage('Checkout Code') {
@@ -49,31 +49,23 @@ pipeline {
             }
         }
 
-stage('Deploy to Nexus') {
-    steps {
-        script {
-            withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
-                def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
+        stage('Deploy to Nexus') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                        def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                        def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
 
-                // Deploy to Nexus using the configured credentials
-                sh """
-                    mvn clean deploy -X \
-                    -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
-                    -s /var/jenkins_home/.m2/settings.xml
-                """
+                        // Deploy to Nexus using the configured credentials
+                        sh """
+                            mvn clean deploy -X \
+                            -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}/ \
+                            -s /var/jenkins_home/.m2/settings.xml
+                        """
+                    }
+                }
             }
         }
-    }
-}
-
-
-
-
-
-
-
-
 
         stage('Build Docker Image') {
             steps {
