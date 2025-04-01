@@ -90,13 +90,14 @@
     <distributionManagement>
         <repository>
             <id>maven-releases</id>
-            <url>http://172.24.32.66:8081/repository/maven-releases/</url> <!-- Updated to use the correct Nexus IP -->
+            <url>http://172.24.32.66:8081/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>maven-snapshots</id>
-            <url>http://172.24.32.66:8081/repository/maven-snapshots/</url> <!-- Updated to use the correct Nexus IP -->
+            <url>http://172.24.32.66:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+
 
 
 
