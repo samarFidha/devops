@@ -57,22 +57,25 @@ pipeline {
         }
 
         stage('Deploy to Nexus') {
-                    steps {
-                        script {
-                            echo "Authenticating to Nexus..."
-                            sh "echo $NEXUS_CREDENTIALS_PSW | docker login $NEXUS_URL -u $NEXUS_CREDENTIALS_USR --password-stdin"
+                   steps {
+                       script {
+                           echo "Authenticating to Nexus..."
+                           sh '''
+                           export DOCKER_TLS_VERIFY=0
+                           echo ${NEXUS_CREDENTIALS_PSW} | docker login --tls-verify=false ${NEXUS_URL} -u ${NEXUS_CREDENTIALS_USR} --password-stdin
+                           '''
 
-                            echo "Tagging image for Nexus..."
-                            sh "docker tag foyer-app:latest $NEXUS_URL/$NEXUS_REPO/foyer-app:latest"
+                           echo "Tagging image for Nexus..."
+                           sh "docker tag foyer-app:latest ${NEXUS_URL}/${NEXUS_REPO}/foyer-app:latest"
 
-                            echo "Pushing image to Nexus..."
-                            sh "docker push $NEXUS_URL/$NEXUS_REPO/foyer-app:latest"
+                           echo "Pushing image to Nexus..."
+                           sh "docker push ${NEXUS_URL}/${NEXUS_REPO}/foyer-app:latest"
 
-                            echo "Logging out from Nexus..."
-                            sh "docker logout"
-                        }
-                    }
-                }
+                           echo "Logging out from Nexus..."
+                           sh "docker logout"
+                       }
+                   }
+               }
 
         stage("Start app and db") {
             steps {
