@@ -4,7 +4,7 @@ pipeline {
         DOCKER_USER = credentials('dockerhub-credentials')
         SONARQUBE_CREDENTIALS = credentials('sonarqube-credentials')
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
-                NEXUS_URL = 'http://172.20.246.164:8082' //http://172.20.246.164:8082/repository/maven-releases/
+                NEXUS_URL = '172.20.246.164:8082' //http://172.20.246.164:8082/repository/maven-releases/
                 NEXUS_REPO = 'maven-releases'
     }
     stages {
@@ -56,23 +56,22 @@ pipeline {
             }
         }
 
-      stage('Deploy to Nexus') {
+          stage('Deploy to Nexus') {
                   steps {
                       script {
-                          echo "Authenticating to Nexus..."
+                          // Configure Docker to allow insecure registry (temporary for this build)
+                          sh 'echo "{ \\"insecure-registries\\" : [\\"$NEXUS_URL\\"] }" > /etc/docker/daemon.json'
+                          sh 'service docker restart'
+                          sleep(time: 10, unit: "SECONDS") // Wait for Docker to restart
 
-                          // Disable TLS and Docker content trust
-                          sh '''
-                          export DOCKER_TLS_VERIFY=""
-                          export DOCKER_CONTENT_TRUST=0
-                          echo ${NEXUS_CREDENTIALS_PSW} | docker login ${NEXUS_URL} -u ${NEXUS_CREDENTIALS_USR} --password-stdin
-                          '''
+                          echo "Authenticating to Nexus..."
+                          sh "echo $NEXUS_CREDENTIALS_PSW | docker login $NEXUS_URL -u $NEXUS_CREDENTIALS_USR --password-stdin"
 
                           echo "Tagging image for Nexus..."
-                          sh "docker tag foyer-app:latest ${NEXUS_URL}/${NEXUS_REPO}/foyer-app:latest"
+                          sh "docker tag foyer-app:latest $NEXUS_URL/$NEXUS_DOCKER_REPO/foyer-app:latest"
 
                           echo "Pushing image to Nexus..."
-                          sh "docker push ${NEXUS_URL}/${NEXUS_REPO}/foyer-app:latest"
+                          sh "docker push $NEXUS_URL/$NEXUS_DOCKER_REPO/foyer-app:latest"
 
                           echo "Logging out from Nexus..."
                           sh "docker logout"
