@@ -78,6 +78,14 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>deploymentRepo</id>
+            <name>Nexus Repository</name>
+            <url>http://172.20.246.164:8082/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
+
     <profiles>
         <profile>
             <id>sonar</id>
