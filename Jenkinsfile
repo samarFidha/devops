@@ -60,9 +60,11 @@ pipeline {
                    steps {
                        script {
                            echo "Authenticating to Nexus..."
+
+                           // Disable Docker content trust and login to Nexus
                            sh '''
-                           export DOCKER_TLS_VERIFY=0
-                           echo ${NEXUS_CREDENTIALS_PSW} | docker login --tls-verify=false ${NEXUS_URL} -u ${NEXUS_CREDENTIALS_USR} --password-stdin
+                           export DOCKER_CONTENT_TRUST=0
+                           echo ${NEXUS_CREDENTIALS_PSW} | docker login ${NEXUS_URL} -u ${NEXUS_CREDENTIALS_USR} --password-stdin
                            '''
 
                            echo "Tagging image for Nexus..."
