@@ -4,8 +4,8 @@ pipeline {
         DOCKER_USER = credentials('dockerhub-credentials')
         SONARQUBE_CREDENTIALS = credentials('sonarqube-credentials')
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
-                NEXUS_URL = 'http://172.20.246.164:8082' //http://172.20.246.164:8082/repository/maven-releases/
-                NEXUS_REPO = 'maven-releases'
+        NEXUS_REGISTRY_URL = '172.20.246.164:8082'  // Without http://
+        NEXUS_DOCKER_REPO = 'docker-hosted'  // Your Docker repository name in Nexus
     }
     stages {
         stage('Checkout GitHub Repository') {
@@ -41,15 +41,7 @@ pipeline {
                 }
             }
         }
-/*
-        stage('Dockerhub') {
-            steps {
-                sh "docker login -u $DOCKER_USER_USR -p $DOCKER_USER_PSW"
-                sh "docker tag foyer-app:latest $DOCKER_USER_USR/foyer-app:latest"
-                sh "docker push $DOCKER_USER_USR/foyer-app:latest"
-            }
-        }
-*/
+
         stage('SonarQube') {
             steps {
                 sh "mvn sonar:sonar -Dsonar.login=$SONARQUBE_CREDENTIALS_USR -Dsonar.password=$SONARQUBE_CREDENTIALS_PSW"
@@ -57,23 +49,30 @@ pipeline {
         }
 
         stage('Deploy to Nexus') {
-                    steps {
-                        script {
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'nexus-credentials',
+                        usernameVariable: 'NEXUS_USER',
+                        passwordVariable: 'NEXUS_PASS'
+                    )]) {
+                        sh """
                             echo "Authenticating to Nexus..."
-                            sh "echo $NEXUS_CREDENTIALS_PSW | docker login $NEXUS_URL -u $NEXUS_CREDENTIALS_USR --password-stdin"
+                            docker login $NEXUS_REGISTRY_URL -u $NEXUS_USER -p $NEXUS_PASS
 
-                            echo "Tagging image for Nexus..."
-                            sh "docker tag foyer-app:latest $NEXUS_URL/$NEXUS_REPO/foyer-app:latest"
+                            echo "Tagging image..."
+                            docker tag foyer-app:latest $NEXUS_REGISTRY_URL/$NEXUS_DOCKER_REPO/foyer-app:latest
 
-                            echo "Pushing image to Nexus..."
-                            sh "docker push $NEXUS_URL/$NEXUS_REPO/foyer-app:latest"
+                            echo "Pushing image..."
+                            docker push $NEXUS_REGISTRY_URL/$NEXUS_DOCKER_REPO/foyer-app:latest
 
-                            echo "Logging out from Nexus..."
-                            sh "docker logout"
-                        }
+                            echo "Logging out..."
+                            docker logout
+                        """
                     }
                 }
-
+            }
+        }
 
         stage("Start app and db") {
             steps {
