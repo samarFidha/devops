@@ -41,7 +41,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('Dockerhub') {
             steps {
                 sh "docker login -u $DOCKER_USER_USR -p $DOCKER_USER_PSW"
@@ -49,7 +49,7 @@ pipeline {
                 sh "docker push $DOCKER_USER_USR/foyer-app:latest"
             }
         }
-
+*/
         stage('SonarQube') {
             steps {
                 sh "mvn sonar:sonar -Dsonar.login=$SONARQUBE_CREDENTIALS_USR -Dsonar.password=$SONARQUBE_CREDENTIALS_PSW"
