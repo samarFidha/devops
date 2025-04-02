@@ -57,27 +57,28 @@ pipeline {
         }
 
         stage('Deploy to Nexus') {
-                   steps {
-                       script {
-                           echo "Authenticating to Nexus..."
+                    steps {
+                        script {
+                            echo "Authenticating to Nexus..."
 
-                           // Disable Docker content trust and login to Nexus
-                           sh '''
-                           export DOCKER_CONTENT_TRUST=0
-                           echo ${NEXUS_CREDENTIALS_PSW} | docker login ${NEXUS_URL} -u ${NEXUS_CREDENTIALS_USR} --password-stdin
-                           '''
+                            // Disable Docker content trust and login to Nexus using HTTP
+                            sh '''
+                            export DOCKER_CONTENT_TRUST=0
+                            # Explicitly use HTTP instead of HTTPS
+                            echo ${NEXUS_CREDENTIALS_PSW} | docker login ${NEXUS_URL} -u ${NEXUS_CREDENTIALS_USR} --password-stdin --insecure-registry
+                            '''
 
-                           echo "Tagging image for Nexus..."
-                           sh "docker tag foyer-app:latest ${NEXUS_URL}/${NEXUS_REPO}/foyer-app:latest"
+                            echo "Tagging image for Nexus..."
+                            sh "docker tag foyer-app:latest ${NEXUS_URL}/${NEXUS_REPO}/foyer-app:latest"
 
-                           echo "Pushing image to Nexus..."
-                           sh "docker push ${NEXUS_URL}/${NEXUS_REPO}/foyer-app:latest"
+                            echo "Pushing image to Nexus..."
+                            sh "docker push ${NEXUS_URL}/${NEXUS_REPO}/foyer-app:latest"
 
-                           echo "Logging out from Nexus..."
-                           sh "docker logout"
-                       }
-                   }
-               }
+                            echo "Logging out from Nexus..."
+                            sh "docker logout"
+                        }
+                    }
+                }
 
         stage("Start app and db") {
             steps {
