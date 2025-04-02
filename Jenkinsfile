@@ -5,7 +5,7 @@ pipeline {
         SONARQUBE_CREDENTIALS = credentials('sonarqube-credentials')
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
                 NEXUS_URL = 'http://172.20.246.164:8082'
-                NEXUS_REPO = 'maven-releases'  //
+                NEXUS_REPO = 'maven-releases'
     }
     stages {
         stage('Checkout GitHub Repository') {
