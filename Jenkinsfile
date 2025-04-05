@@ -4,8 +4,8 @@ pipeline {
         DOCKER_USER = credentials('dockerhub-credentials')
         SONARQUBE_CREDENTIALS = credentials('sonarqube-credentials')
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
-        NEXUS_REGISTRY_URL = '172.20.246.164:8082/repository'  // Without http://
-        NEXUS_DOCKER_REPO = 'maven-releases'  // Your Docker repository name in Nexus
+        NEXUS_BASE_URL = "172.20.246.164:8082/repository"  // Without http://
+        NEXUS_REPOSITORY = "maven-releases"  // Your Docker repository name in Nexus
     }
     stages {
         stage('Checkout GitHub Repository') {
@@ -56,19 +56,11 @@ pipeline {
                         usernameVariable: 'NEXUS_USER',
                         passwordVariable: 'NEXUS_PASS'
                     )]) {
-                        sh """
-                            echo "Authenticating to Nexus..."
-                            docker login $NEXUS_REGISTRY_URL -u $NEXUS_USER -p $NEXUS_PASS
+                        sh "docker build \
+                                                          --build-arg NEXUS_BASE_URL=${NEXUS_BASE_URL} \
+                                                          --build-arg NEXUS_REPOSITORY=${NEXUS_REPOSITORY} \
 
-                            echo "Tagging image..."
-                            docker tag foyer-app:latest $NEXUS_REGISTRY_URL/$NEXUS_DOCKER_REPO/foyer-app:latest
-
-                            echo "Pushing image..."
-                            docker push $NEXUS_REGISTRY_URL/$NEXUS_DOCKER_REPO/foyer-app:latest
-
-                            echo "Logging out..."
-                            docker logout
-                        """
+                                                          -t foyer-app:latest ."
                     }
                 }
             }
