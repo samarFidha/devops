@@ -4,8 +4,8 @@ pipeline {
         DOCKER_USER = credentials('dockerhub-credentials')
         SONARQUBE_CREDENTIALS = credentials('sonarqube-credentials')
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
-        NEXUS_BASE_URL = "172.20.246.164:8082/repository"  // Without http://
-        NEXUS_REPOSITORY = "maven-releases"  // Your Docker repository name in Nexus
+        NEXUS_BASE_URL = '172.20.246.164:8082/repository'  // Without http://
+        NEXUS_REPOSITORY = 'maven-releases'  // Your Docker repository name in Nexus
     }
     stages {
         stage('Checkout GitHub Repository') {
