@@ -4,8 +4,11 @@ pipeline {
         DOCKER_USER = credentials('dockerhub-credentials')
         SONARQUBE_CREDENTIALS = credentials('sonarqube-credentials')
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
-        NEXUS_BASE_URL = '172.20.246.164:8082/repository'  // Without http://
-        NEXUS_REPOSITORY = 'maven-releases'  // Your Docker repository name in Nexus
+
+           NEXUS_BASE_URL = "172.20.246.164:8082/repository"
+                       NEXUS_REPOSITORY = "maven-releases"
+                       NEXUS_ARTIFACT_VERSION = "1.0"
+                        MAVEN_ARTIFACT_ID = 'SkiStationProject'
     }
     stages {
         stage('Checkout GitHub Repository') {
@@ -50,19 +53,19 @@ pipeline {
 
         stage('Deploy to Nexus') {
             steps {
+            sh 'mvn deploy -Dskiptests=true'
+            }
                 script {
-                    withCredentials([usernamePassword(
-                        credentialsId: 'nexus-credentials',
-                        usernameVariable: 'NEXUS_USER',
-                        passwordVariable: 'NEXUS_PASS'
-                    )]) {
-                        sh """docker build \
-                                                          --build-arg NEXUS_BASE_URL=${NEXUS_BASE_URL} \
-                                                          --build-arg NEXUS_REPOSITORY=${NEXUS_REPOSITORY} \
 
-                                                          -t foyer-app:latest ."""
+                        sh "
+                           docker build \
+                                                             --build-arg NEXUS_BASE_URL=${NEXUS_BASE_URL} \
+                                                             --build-arg NEXUS_REPOSITORY=${NEXUS_REPOSITORY} \
+                                                             --build-arg NEXUS_ARTIFACT_VERSION=${NEXUS_ARTIFACT_VERSION} \
+                                                             -t foyer-app:latest .
+                        "
                     }
-                }
+
             }
         }
 
