@@ -54,18 +54,20 @@ pipeline {
         stage('Deploy to Nexus') {
             steps {
             sh 'mvn deploy -Dskiptests=true'
-            }
+            }}
+            stage("Build Docker Image"){
+            steps{
                 script {
 
-                        sh '''
+                        sh "
                            docker build \
                                                              --build-arg NEXUS_BASE_URL=${NEXUS_BASE_URL} \
                                                              --build-arg NEXUS_REPOSITORY=${NEXUS_REPOSITORY} \
                                                              --build-arg NEXUS_ARTIFACT_VERSION=${NEXUS_ARTIFACT_VERSION} \
                                                              -t foyer-app:latest .
-                        '''
+                        "
                     }
-
+}}
 
         }
 
