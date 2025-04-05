@@ -56,11 +56,11 @@ pipeline {
                         usernameVariable: 'NEXUS_USER',
                         passwordVariable: 'NEXUS_PASS'
                     )]) {
-                        sh "docker build \
+                        sh """docker build \
                                                           --build-arg NEXUS_BASE_URL=${NEXUS_BASE_URL} \
                                                           --build-arg NEXUS_REPOSITORY=${NEXUS_REPOSITORY} \
 
-                                                          -t foyer-app:latest ."
+                                                          -t foyer-app:latest ."""
                     }
                 }
             }
