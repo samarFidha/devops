@@ -7,8 +7,8 @@ pipeline {
 
            NEXUS_BASE_URL = "172.20.246.164:8082/repository"
                        NEXUS_REPOSITORY = "maven-releases"
-                       NEXUS_ARTIFACT_VERSION = "1.0"
-                        MAVEN_ARTIFACT_ID = 'SkiStationProject'
+                       NEXUS_ARTIFACT_VERSION = "0.0.1"
+                        MAVEN_ARTIFACT_ID = 'foyer-app'
     }
     stages {
         stage('Checkout GitHub Repository') {
