@@ -30,7 +30,7 @@ pipeline {
                     // Afficher la sortie de la construction
                     sh 'ls -l target/'
                     echo " target of artifact"
-                    sh 'cat target/${ARTIFACT_NAME}.original' // Afficher le contenu du fichier artifact renommé
+                   // sh 'cat target/${ARTIFACT_NAME}.original' // Afficher le contenu du fichier artifact renommé
 
                 }
             }
@@ -40,11 +40,11 @@ pipeline {
             steps {
                 echo 'Building Docker image...'
                 script {
-                        sh 'ls -l /workspace/devops/'
+
                        def imageName = "${env.JOB_NAME}:${env.BUILD_NUMBER}"
 
                        // Construire l'image Docker
-                       sh "docker build -t ${imageName} -f /workspace/devops/docker/Dockerfile ."
+                       sh 'docker build -t ${imageName} -f /docker/Dockerfile .''
                 }
             }
         }
