@@ -58,7 +58,8 @@ pipeline {
                 echo 'Pushing Docker image to Docker Hub...'
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                       // sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}  --password-stdin"
+                          sh 'echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin'
                         sh "docker push ${DOCKER_IMAGE}"
                     }
                 }
