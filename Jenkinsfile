@@ -2,41 +2,55 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'samarelfidha/alpine:1.0.0'  // Nom de votre image Docker
-        DOCKER_CREDENTIALS_ID = 'samar-PAT'  // ID de vos identifiants Docker dans Jenkins
-        GIT_CREDENTIALS_ID = 'PAT-SAMAR'  // ID des identifiants Git pour accéder à votre repo
-        // SONAR_TOKEN = credentials('Jenkins-sonarqube-token')  // Token SonarQube
-        // SONAR_HOST_URL = 'http://172.18.129.23:9000'  // URL de votre serveur SonarQube
+        DOCKER_IMAGE = 'samarelfidha/alpine:1.0.0' // Nom de votre image Docker
+        DOCKER_CREDENTIALS_ID = 'samar-PAT' // ID de vos identifiants Docker dans Jenkins
+        GIT_CREDENTIALS_ID = 'PAT-SAMAR' // ID des identifiants Git pour accéder à votre repo
+        ARTIFACT_NAME = 'Foyer-0.0.1-SNAPSHOT.jar' // Nom de l'artefact généré par Maven
+        GROUP_ID = 'tn/esprit/spring' // Group ID Maven
+        ARTIFACT_VERSION = '0.0.1-SNAPSHOT' // Version de l'artefact
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'Samar',
-                    url: 'https://github.com/samarFidha/devops.git',
-                    credentialsId: GIT_CREDENTIALS_ID  // Identifiants Git pour cloner le repo
+                echo 'Checking out the code...'
+                script {
+                    git branch: 'Samar',
+                        url: 'https://github.com/samarFidha/devops.git',
+                        credentialsId: GIT_CREDENTIALS_ID
+                }
             }
         }
 
         stage('Build with Maven') {
             steps {
-                sh 'mvn clean package'
+                echo 'Building the Maven project...'
+                script {
+                    sh 'mvn clean package'
+                    // Afficher la sortie de la construction
+                    sh 'ls -l target/'
+                    sh 'cat target/${ARTIFACT_NAME}.original' // Afficher le contenu du fichier artifact renommé
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                echo 'Building Docker image...'
+                script {
+                    // Construction de l'image Docker avec le JAR généré
+                    sh "docker build -t ${DOCKER_IMAGE} ."
+                }
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
+                echo 'Pushing Docker image to Docker Hub...'
                 script {
-                    // Authentification manuelle à Docker Hub
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-                        sh 'docker push $DOCKER_IMAGE'
+                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                        sh "docker push ${DOCKER_IMAGE}"
                     }
                 }
             }
@@ -44,28 +58,31 @@ pipeline {
 
         stage('Deploy Container') {
             steps {
-                sh 'docker stop springboot-app || true'  // Arrêter le conteneur existant s'il existe
-                sh 'docker rm springboot-app || true'    // Supprimer le conteneur existant s'il existe
-                sh 'docker run -d -p 8081:8080 --name springboot-app $DOCKER_IMAGE'  // Lancer le nouveau conteneur
+                echo 'Deploying the container...'
+                sh 'docker stop springboot-app || true' // Stop existing container
+                sh 'docker rm springboot-app || true' // Remove existing container
+                sh "docker run -d -p 8081:8080 --name springboot-app ${DOCKER_IMAGE}" // Lancer le nouveau conteneur
             }
         }
 
-        // Nexux Pipeline Stage
         stage('Nexus') {
             steps {
-                script {
-                    // Configuration de Nexus
-                    ARTIFACT_NAME = 'Foyer-0.0.1-SNAPSHOT.jar'  // Nom de l'artefact généré par Maven
-                    GROUP_ID = 'tn/esprit/spring'  // Group ID Maven
-                    ARTIFACT_VERSION = '0.0.1-SNAPSHOT'  // Version de l'artefact
+                echo 'Configuring Nexus...'
+                echo 'Cleaning the project...'
+                sh 'mvn clean'
 
-                    echo 'Cleaning the project...'
-                    sh 'mvn clean'  // Nettoyage du projet avec Maven
-
-                    echo 'Building the project...'
-                    sh 'mvn package -DskipTests'  // Compilation et packaging sans tests
-                }
+                echo 'Building the project...'
+                sh 'mvn package -DskipTests'
             }
         }
-    } // Fermeture de "stages"
-}  // Fermeture de "pipeline"
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Please check the logs.'
+        }
+    }
+}
