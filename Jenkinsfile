@@ -45,7 +45,10 @@ pipeline {
                         sh ' cd docker'
                         sh ' ls -l'
                        // Construire l'image Docker
-                       sh 'docker build -t samar:1.0.0  .'
+                       sh 'docker build -t samar:2.0.0  .'
+                       sh 'docker build -t samar:1.0.0  -f /docker/Dockerfile .'
+
+
                 }
             }
         }
