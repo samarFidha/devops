@@ -15,7 +15,7 @@ pipeline {
             steps {
                 echo 'Checking out the code...'
                 script {
-                    git branch: 'Samar',
+                    git branch: 'main',
                         url: 'https://github.com/samarFidha/devops.git',
                         credentialsId: GIT_CREDENTIALS_ID
                 }
