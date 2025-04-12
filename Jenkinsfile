@@ -66,6 +66,8 @@ pipeline {
             }
         }
 
+
+
         stage('Deploy Container') {
             steps {
                 echo 'Deploying the container...'
