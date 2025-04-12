@@ -44,7 +44,7 @@ pipeline {
                        def imageName = "${env.JOB_NAME}:${env.BUILD_NUMBER}"
 
                        // Construire l'image Docker
-                       sh 'docker build -t ${imageName} -f /docker/Dockerfile .''
+                       sh 'docker build -t ${imageName} -f /docker/Dockerfile .'
                 }
             }
         }
