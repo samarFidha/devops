@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'samarelfidha/alpine:1.0.0' // Nom de votre image Docker
+        DOCKER_IMAGE = '${env.JOB_NAME}:${env.BUILD_NUMBER}' // Nom de votre image Docker
         DOCKER_CREDENTIALS_ID = 'samar-PAT' // ID de vos identifiants Docker dans Jenkins
         GIT_CREDENTIALS_ID = 'PAT-SAMAR' // ID des identifiants Git pour accéder à votre repo
         ARTIFACT_NAME = 'Foyer-0.0.1-SNAPSHOT.jar' // Nom de l'artefact généré par Maven
