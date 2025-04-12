@@ -5,7 +5,7 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 
 # Copiez le fichier JAR dans le conteneur
-COPY target/Foyer-0.0.1-SNAPSHOT.jar /app/Foyer.jar
+COPY ../target/Foyer-0.0.1-SNAPSHOT.jar /app/Foyer.jar
 
 # Exposez le port sur lequel l'application écoute
 EXPOSE 8080

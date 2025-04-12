@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'samarelfidha/alpine:1.0.0' // Nom de votre image Docker
+       // DOCKER_IMAGE = 'samarelfidha/alpine:1.0.0' // Nom de votre image Docker
         DOCKER_CREDENTIALS_ID = 'samar-PAT' // ID de vos identifiants Docker dans Jenkins
         GIT_CREDENTIALS_ID = 'PAT-SAMAR' // ID des identifiants Git pour accéder à votre repo
         ARTIFACT_NAME = 'Foyer-0.0.1-SNAPSHOT.jar' // Nom de l'artefact généré par Maven
@@ -29,7 +29,9 @@ pipeline {
                     sh 'mvn clean package'
                     // Afficher la sortie de la construction
                     sh 'ls -l target/'
+                    echo " target of artifact"
                     sh 'cat target/${ARTIFACT_NAME}.original' // Afficher le contenu du fichier artifact renommé
+
                 }
             }
         }
@@ -38,8 +40,11 @@ pipeline {
             steps {
                 echo 'Building Docker image...'
                 script {
-                    // Construction de l'image Docker avec le JAR généré
-                    sh "docker build -t ${DOCKER_IMAGE} ."
+                        sh 'ls -l /workspace/devops/'
+                       def imageName = "${env.JOB_NAME}:${env.BUILD_NUMBER}"
+
+                       // Construire l'image Docker
+                       sh "docker build -t ${imageName} -f /workspace/devops/docker/Dockerfile ."
                 }
             }
         }
