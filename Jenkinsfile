@@ -42,9 +42,10 @@ pipeline {
                 script {
 
                        def imageName = "${env.JOB_NAME}:${env.BUILD_NUMBER}"
-
+                        sh ' cd docker'
+                        sh ' ls -l'
                        // Construire l'image Docker
-                       sh 'docker build -t samar:1.0.0 -f /docker/Dockerfile .'
+                       sh 'docker build -t samar:1.0.0  .'
                 }
             }
         }
