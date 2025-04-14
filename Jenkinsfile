@@ -20,23 +20,24 @@ pipeline {
                     url: 'https://github.com/samarFidha/devops.git',
                     credentialsId: GIT_CREDENTIALS_ID
             }
-        } // 👈 cette accolade manquait
-
-        stage('SonarQube Analysis') {
-            steps {
-                withCredentials([string(credentialsId: SONAR_CREDENTIALS_ID, variable: 'SONAR_TOKEN')]) {
-                    withSonarQubeEnv('SonarQube') {
-                        sh '''
-                            sonar-scanner \
-                            -Dsonar.projectKey=devops \
-                            -Dsonar.sources=src \
-                            -Dsonar.host.url=http://172.30.46.120:9000 \
-                            -Dsonar.login=$SONAR_TOKEN
-                        '''
-                    }
-                }
-            }
         }
+
+       stage('SonarQube Analysis') {
+           steps {
+               withCredentials([string(credentialsId: SONAR_CREDENTIALS_ID, variable: 'SONAR_TOKEN')]) {
+                   withSonarQubeEnv('SonarQube') {
+                       sh '''
+                           sonar-scanner \
+                           -Dsonar.projectKey=devops \
+                           -Dsonar.sources=src \
+                           -Dsonar.host.url=http://172.30.46.120:9000 \
+                           -Dsonar.login=$SONAR_TOKEN
+                       '''
+                   }
+               }
+           }
+       }
+
 
         stage('Quality Gate') {
             steps {
