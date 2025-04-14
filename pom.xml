@@ -85,6 +85,12 @@
             <version>2.3.0</version> <!-- Use the latest version -->
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>nexus-snapshots</id>
+            <url>http://172.30.201.44:8081/repository/maven-snapshots/</url>
+        </repository>
+    </distributionManagement>
 
     <profiles>
         <profile>
