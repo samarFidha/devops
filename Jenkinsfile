@@ -13,20 +13,16 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
+
+
+
+ stage('Checkout Code') {
             steps {
-                echo 'Checking out the main repo...'
+                echo 'Checking out the code...'
                 git branch: 'main',
                     url: 'https://github.com/samarFidha/devops.git',
                     credentialsId: GIT_CREDENTIALS_ID
-
-                echo 'Checking out the second repo...'
-                dir('second-repo') {
-                    git url: 'https://github.com/samarFidha/devops.git'
-                }
             }
-        }
-
 
 
 
