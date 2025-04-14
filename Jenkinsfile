@@ -75,5 +75,17 @@ pipeline {
                 }
             }
         }
+         stage('Deploy to Nexus') {
+                    steps {
+                        withCredentials([usernamePassword(credentialsId: 'nexus-deploy-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                            sh """
+                                mvn deploy -s /usr/share/maven/conf/settings.xml \
+                                    -DrepositoryId=nexus-snapshots \
+                                    -Durl=http://172.30.201.44:8081/repository/maven-snapshots/ \
+                                    -Dusername=$NEXUS_USER \
+                                    -Dpassword=$NEXUS_PASS
+                            """
+                        }
+                    }
     }
 }
