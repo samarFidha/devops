@@ -28,17 +28,21 @@ pipeline {
                    }
                }
 
-               stage('SonarQube Analysis') {
-                   steps {
-                       withSonarQubeEnv('SonarQube') {
-                           sh 'sonar-scanner \
-                               -Dsonar.projectKey=devops \
-                               -Dsonar.sources=src \
-                               -Dsonar.host.url=http://172.30.46.120:9000 \
-                               -Dsonar.login=$SONARQUBE_ENV'
-                       }
-                   }
-               }
+         stage('SonarQube Analysis') {
+             steps {
+                 withCredentials([string(credentialsId: SONAR_CREDENTIALS_ID, variable: 'SONAR_TOKEN')]) {
+                     withSonarQubeEnv('SonarQube') {
+                         sh '''
+                             sonar-scanner \
+                             -Dsonar.projectKey=devops \
+                             -Dsonar.sources=src \
+                             -Dsonar.host.url=http://172.30.46.120:9000 \
+                             -Dsonar.login=$SONAR_TOKEN
+                         '''
+                     }
+                 }
+             }
+         }
 
                stage('Quality Gate') {
                    steps {
@@ -47,8 +51,8 @@ pipeline {
                        }
                    }
                }
-           }
-       }
+
+
 
         stage('Build with Maven') {
             steps {
