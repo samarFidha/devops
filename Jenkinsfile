@@ -8,49 +8,43 @@ pipeline {
         ARTIFACT_NAME = 'Foyer-0.0.1-SNAPSHOT.jar'
         GROUP_ID = 'tn/esprit/spring'
         ARTIFACT_VERSION = '0.0.1-SNAPSHOT'
-        SONAR_HOST_URL = 'http://172.30.46.120:9000/' // Remplacez par l'URL de votre SonarQube
-        SONAR_CREDENTIALS_ID = 'sonarqube-credentials' // Remplacez par l'ID de vos informations d'identification SonarQube
+        SONAR_HOST_URL = 'http://172.30.46.120:9000/'
+        SONAR_CREDENTIALS_ID = 'sonarqube-credentials'
     }
 
     stages {
-
-
-
- stage('Checkout Code') {
+        stage('Checkout Code') {
             steps {
                 echo 'Checking out the code...'
                 git branch: 'main',
                     url: 'https://github.com/samarFidha/devops.git',
                     credentialsId: GIT_CREDENTIALS_ID
             }
+        } // 👈 cette accolade manquait
 
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: SONAR_CREDENTIALS_ID, variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                            sonar-scanner \
+                            -Dsonar.projectKey=devops \
+                            -Dsonar.sources=src \
+                            -Dsonar.host.url=http://172.30.46.120:9000 \
+                            -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
+                }
+            }
+        }
 
-
-         stage('SonarQube Analysis') {
-             steps {
-                 withCredentials([string(credentialsId: SONAR_CREDENTIALS_ID, variable: 'SONAR_TOKEN')]) {
-                     withSonarQubeEnv('SonarQube') {
-                         sh '''
-                             sonar-scanner \
-                             -Dsonar.projectKey=devops \
-                             -Dsonar.sources=src \
-                             -Dsonar.host.url=http://172.30.46.120:9000 \
-                             -Dsonar.login=$SONAR_TOKEN
-                         '''
-                     }
-                 }
-             }
-         }
-
-               stage('Quality Gate') {
-                   steps {
-                       timeout(time: 1, unit: 'MINUTES') {
-                           waitForQualityGate abortPipeline: true
-                       }
-                   }
-               }
-
-
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
         stage('Build with Maven') {
             steps {
@@ -63,7 +57,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                dir('docker') { // Utilisez dir pour exécuter dans le dossier docker
+                dir('docker') {
                     sh 'ls -l'
                     sh "docker build -t ${DOCKER_IMAGE} ."
                 }
@@ -74,7 +68,11 @@ pipeline {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
                 script {
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    withCredentials([usernamePassword(
+                        credentialsId: DOCKER_CREDENTIALS_ID,
+                        passwordVariable: 'DOCKER_PASSWORD',
+                        usernameVariable: 'DOCKER_USERNAME'
+                    )]) {
                         sh 'echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin'
                         sh "docker push ${DOCKER_IMAGE}"
                     }
@@ -105,7 +103,6 @@ pipeline {
                 sh 'mvn test'
             }
         }
-
     }
 
     post {
