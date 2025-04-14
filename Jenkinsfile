@@ -22,7 +22,7 @@ pipeline {
 
                 echo 'Checking out the second repo...'
                 dir('second-repo') {
-                    git url: 'https://repo.git/project.git'
+                    git url: 'https://github.com/samarFidha/devops.git'
                 }
             }
         }
