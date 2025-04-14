@@ -8,8 +8,8 @@ pipeline {
         ARTIFACT_NAME = 'Foyer-0.0.1-SNAPSHOT.jar'
         GROUP_ID = 'tn/esprit/spring'
         ARTIFACT_VERSION = '0.0.1-SNAPSHOT'
-        SONAR_HOST_URL = 'http://your-sonarqube-url' // Remplacez par l'URL de votre SonarQube
-        SONAR_CREDENTIALS_ID = 'sonar-credentials-id' // Remplacez par l'ID de vos informations d'identification SonarQube
+        SONAR_HOST_URL = 'http://172.30.46.120:9000/' // Remplacez par l'URL de votre SonarQube
+        SONAR_CREDENTIALS_ID = 'sonarqube-credentials' // Remplacez par l'ID de vos informations d'identification SonarQube
     }
 
     stages {
@@ -22,16 +22,33 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                echo 'Running SonarQube analysis...'
-                script {
-                    withCredentials([usernamePassword(credentialsId: SONAR_CREDENTIALS_ID, passwordVariable: 'SONAR_PASSWORD', usernameVariable: 'SONAR_USERNAME')]) {
-                        sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_USERNAME} -Dsonar.password=${SONAR_PASSWORD}"
-                    }
-                }
-            }
-        }
+        stage('Checkout') {
+                   steps {
+                       git 'https://repo.git/project.git'
+                   }
+               }
+
+               stage('SonarQube Analysis') {
+                   steps {
+                       withSonarQubeEnv('SonarQube') {
+                           sh 'sonar-scanner \
+                               -Dsonar.projectKey=devops \
+                               -Dsonar.sources=src \
+                               -Dsonar.host.url=http://172.30.46.120:9000 \
+                               -Dsonar.login=$SONARQUBE_ENV'
+                       }
+                   }
+               }
+
+               stage('Quality Gate') {
+                   steps {
+                       timeout(time: 1, unit: 'MINUTES') {
+                           waitForQualityGate abortPipeline: true
+                       }
+                   }
+               }
+           }
+       }
 
         stage('Build with Maven') {
             steps {
