@@ -15,18 +15,20 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                echo 'Checking out the code...'
+                echo 'Checking out the main repo...'
                 git branch: 'main',
                     url: 'https://github.com/samarFidha/devops.git',
                     credentialsId: GIT_CREDENTIALS_ID
+
+                echo 'Checking out the second repo...'
+                dir('second-repo') {
+                    git url: 'https://repo.git/project.git'
+                }
             }
         }
 
-        stage('Checkout') {
-                   steps {
-                       git 'https://repo.git/project.git'
-                   }
-               }
+
+
 
          stage('SonarQube Analysis') {
              steps {
@@ -100,6 +102,14 @@ pipeline {
                 sh 'mvn package -DskipTests'
             }
         }
+
+        stage('Run Tests') {
+            steps {
+                echo 'Running tests...'
+                sh 'mvn test'
+            }
+        }
+
     }
 
     post {
