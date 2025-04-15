@@ -22,32 +22,41 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+
+        stage('SonarQube Code Analysis') {
             steps {
-                withCredentials([string(credentialsId: SONAR_CREDENTIALS_ID, variable: 'SONAR_TOKEN')]) {
+                script {
+                    def scannerHome = tool name: 'scanner-name', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                     withSonarQubeEnv('SonarQube') {
-                        script {
-                            docker.image('sonarsource/sonar-scanner-cli:latest').inside {
-                                sh '''
-                                    sonar-scanner \
-                                    -Dsonar.projectKey=devops \
-                                    -Dsonar.sources=src \
-                                    -Dsonar.login=$SONAR_TOKEN
-                                '''
-                            }
+                        echo "Running SonarQube analysis..."
+                        sh "${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=devops \
+                            -Dsonar.sources=src \
+                            -Dsonar.java.binaries=target \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}"
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Quality Gate Check') {
+            steps {
+                timeout(time: 1, unit: 'MINUTES') {
+                    script {
+                        def qualityGate = waitForQualityGate()
+                        if (qualityGate.status != 'OK') {
+                            echo "❌ Quality Gate failed: ${qualityGate.status}"
+                            error "Pipeline aborted due to quality gate failure."
+                        } else {
+                            echo "✅ Quality Gate passed: ${qualityGate.status}"
                         }
                     }
                 }
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 1, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+
 
         stage('Build with Maven') {
             steps {
