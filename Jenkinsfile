@@ -30,9 +30,9 @@ pipeline {
                            sonar-scanner \
                            -Dsonar.projectKey=devops \
                            -Dsonar.sources=src \
-                           -Dsonar.host.url=http://172.30.46.120:9000 \
                            -Dsonar.login=$SONAR_TOKEN
                        '''
+
                    }
                }
            }
