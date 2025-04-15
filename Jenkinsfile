@@ -89,4 +89,32 @@ pipeline {
                 echo 'Deploying the container...'
                 sh 'docker stop springboot-app || true'
                 sh 'docker rm springboot-app || true'
-                sh "docker run -d -p
+                sh "docker run -d -p 8081:8080 --name springboot-app ${DOCKER_IMAGE}"
+            }
+        }
+
+        stage('Nexus') {
+            steps {
+                echo 'Configuring Nexus...'
+                sh 'mvn clean'
+                sh 'mvn package -DskipTests'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo 'Running tests...'
+                sh 'mvn test'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Please check the logs.'
+        }
+    }
+}
