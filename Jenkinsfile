@@ -23,20 +23,19 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            agent {
-                docker {
-                    image 'sonarsource/sonar-scanner-cli:latest'
-                }
-            }
             steps {
                 withCredentials([string(credentialsId: SONAR_CREDENTIALS_ID, variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('SonarQube') {
-                        sh '''
-                            sonar-scanner \
-                            -Dsonar.projectKey=devops \
-                            -Dsonar.sources=src \
-                            -Dsonar.login=$SONAR_TOKEN
-                        '''
+                        script {
+                            docker.image('sonarsource/sonar-scanner-cli:latest').inside {
+                                sh '''
+                                    sonar-scanner \
+                                    -Dsonar.projectKey=devops \
+                                    -Dsonar.sources=src \
+                                    -Dsonar.login=$SONAR_TOKEN
+                                '''
+                            }
+                        }
                     }
                 }
             }
@@ -89,7 +88,9 @@ pipeline {
                 echo 'Deploying the container...'
                 sh 'docker stop springboot-app || true'
                 sh 'docker rm springboot-app || true'
-                sh "docker run -d -p 8081:8080 --name springboot-app ${DOCKER_IMAGE}"
+                sh '''
+                    docker run -d -p 8081:8080 --name springboot-app ${DOCKER_IMAGE}
+                '''
             }
         }
 
@@ -111,10 +112,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo '✅ Pipeline completed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Please check the logs.'
+            echo '❌ Pipeline failed. Please check the logs.'
         }
     }
 }
