@@ -22,22 +22,25 @@ pipeline {
             }
         }
 
-       stage('SonarQube Analysis') {
-           steps {
-               withCredentials([string(credentialsId: SONAR_CREDENTIALS_ID, variable: 'SONAR_TOKEN')]) {
-                   withSonarQubeEnv('SonarQube') {
-                       sh '''
-                           sonar-scanner \
-                           -Dsonar.projectKey=devops \
-                           -Dsonar.sources=src \
-                           -Dsonar.login=$SONAR_TOKEN
-                       '''
-
-                   }
-               }
-           }
-       }
-
+        stage('SonarQube Analysis') {
+            agent {
+                docker {
+                    image 'sonarsource/sonar-scanner-cli:latest'
+                }
+            }
+            steps {
+                withCredentials([string(credentialsId: SONAR_CREDENTIALS_ID, variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                            sonar-scanner \
+                            -Dsonar.projectKey=devops \
+                            -Dsonar.sources=src \
+                            -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
+                }
+            }
+        }
 
         stage('Quality Gate') {
             steps {
@@ -86,32 +89,4 @@ pipeline {
                 echo 'Deploying the container...'
                 sh 'docker stop springboot-app || true'
                 sh 'docker rm springboot-app || true'
-                sh "docker run -d -p 8081:8080 --name springboot-app ${DOCKER_IMAGE}"
-            }
-        }
-
-        stage('Nexus') {
-            steps {
-                echo 'Configuring Nexus...'
-                sh 'mvn clean'
-                sh 'mvn package -DskipTests'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                echo 'Running tests...'
-                sh 'mvn test'
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed. Please check the logs.'
-        }
-    }
-}
+                sh "docker run -d -p
