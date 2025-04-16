@@ -54,8 +54,6 @@ pipeline {
 
                                         sh ' ls -l'
 
-                                       // Construire l'image Docker
-
                                        sh 'docker build -t ${DOCKER_IMAGE}  .'
 
 
@@ -64,7 +62,6 @@ pipeline {
 
             }
         }
-
         stage('Push to Docker Hub') {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
