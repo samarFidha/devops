@@ -94,12 +94,12 @@ pipeline {
                                                     # Start services with health checks
                                                     if docker compose version >/dev/null 2>&1; then
                                                         echo "Using modern Docker Compose (docker compose)"
-                                                                                    docker compose down
+docker compose down --remove-orphans
 
                                                         docker compose up -d --wait
                                                     elif command -v docker-compose >/dev/null 2>&1; then
                                                         echo "Using legacy Docker Compose (docker-compose)"
-                                                                                    docker-compose down
+docker compose down --remove-orphans
 
                                                         docker-compose up -d
                                                         # Add manual wait for legacy compose

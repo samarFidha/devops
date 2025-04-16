@@ -5,6 +5,7 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_DATABASE: foyer
+      MYSQL_ROOT_HOST: '%'
     ports:
       - "3309:3306"
     volumes:
@@ -12,10 +13,10 @@ services:
     networks:
       - foyer-net
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   pro-foyer:
     image: bechirgarali/foyer-app:latest
