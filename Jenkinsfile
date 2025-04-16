@@ -9,6 +9,15 @@ pipeline {
     }
 
     stages {
+        stage('Force Clean Workspace') {
+            steps {
+                script {
+                    echo '🧹 Forcing manual workspace cleanup...'
+                    deleteDir() // supprime tous les fichiers du workspace
+                }
+            }
+        }
+
         stage('Clean GIT') {
             steps {
                 cleanWs()
