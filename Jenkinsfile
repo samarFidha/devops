@@ -58,7 +58,6 @@ pipeline {
 
                                        sh 'docker build -t ${DOCKER_IMAGE}  .'
 
-                                     //  sh 'docker build -t samar:1.0.0  -f /docker/Dockerfile .'
 
                 }
 
