@@ -1,7 +1,7 @@
 services:
-  foyer-db:
+  data:
     image: mysql:8.0
-    container_name: foyer-db
+    container_name: data
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: foyer
@@ -22,12 +22,12 @@ services:
   pro-foyer:
       image: bechirgarali/foyer-app:latest
       depends_on:
-        foyer-db:
+        data:
           condition: service_healthy
       ports:
         - "8081:8081"
       environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://foyer-db:3306/foyer
+        SPRING_DATASOURCE_URL: jdbc:mysql://data:3306/foyer
         SPRING_DATASOURCE_USERNAME: root
         SPRING_DATASOURCE_PASSWORD:
       networks:
