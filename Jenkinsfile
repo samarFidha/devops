@@ -6,9 +6,11 @@ pipeline {
         NEXUS_REPO_RELEASES = 'maven-releases'
         NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
     }
+
+
     stages {
 
-    stage('Clean Workspace') {
+    stage('Clean GIT') {
                 steps {
                     cleanWs()
                 }
