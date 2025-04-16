@@ -5,17 +5,14 @@ services:
     image: mysql:8.0
     container_name: data
     environment:
-      MYSQL_ROOT_PASSWORD: "root"  # Must set a root password (can be simple for dev)
-      MYSQL_DATABASE: foyer
-      MYSQL_USER: root
-      MYSQL_PASSWORD: ""       # Set same as root password for simplicity
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"  # Explicitly disallow empty password
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"  # Allow empty root password
+      MYSQL_DATABASE: foyer               # Database to create
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
       - "3309:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot" ]
       interval: 5s
       timeout: 10s
       retries: 10
@@ -23,18 +20,18 @@ services:
       - foyer-net
 
   pro-foyer:
-    image: bechirgarali/foyer-app:latest
-    depends_on:
-      data:
-        condition: service_healthy
-    ports:
-      - "8089:8081"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://data:3306/foyer
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ""  # Must match the MySQL password
-    networks:
-      - foyer-net
+      image: bechirgarali/foyer-app:latest
+      depends_on:
+        data:
+          condition: service_healthy
+      ports:
+        - "8089:8081"
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:mysql://data:3306/foyer
+        SPRING_DATASOURCE_USERNAME: root
+        SPRING_DATASOURCE_PASSWORD: ""  # Empty password
+      networks:
+        - foyer-net
 
   prometheus:
     image: prom/prometheus

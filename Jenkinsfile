@@ -86,38 +86,26 @@ pipeline {
         }
 
        stage('Deploy with Docker Compose') {
-                   steps {
-                       script {
-                           // Simplified deployment using whichever compose command is available
-                            sh '''
-                                                    # Start services with health checks
-                                                    if docker compose version >/dev/null 2>&1; then
-                                                        echo "Using modern Docker Compose (docker compose)"
-                                                        docker compose up -d --wait
-                                                    elif command -v docker-compose >/dev/null 2>&1; then
-                                                        echo "Using legacy Docker Compose (docker-compose)"
-                                                        docker-compose up -d
-                                                        # Add manual wait for legacy compose
-                                                        docker-compose ps | grep -q healthy || sleep 30
-                                                    else
-                                                        echo "ERROR: No Docker Compose command available"
-                                                        exit 1
-                                                    fi
+           steps {
+               script {
+                   sh '''
+                       # Stop and remove any existing containers
+                       docker-compose down || true
 
-                                                    # Verify all containers are healthy
-                                                    if ! docker ps --format '{{.Names}} {{.Status}}' | grep -v 'healthy'; then
-                                                        echo "All containers started successfully"
-                                                    else
-                                                        echo "Some containers failed to start:"
-                                                        docker ps -a
-                                                        echo "Logs from foyer-db:"
-                                                        docker logs foyer-db
-                                                        exit 1
-                                                    fi
-                                                '''
-                       }
-                   }
-        }
+                       # Start services with clean build
+                       docker-compose up -d --build
+
+                       # Wait for database to become healthy (without password)
+                       echo "Waiting for database to initialize..."
+                       timeout 180s bash -c 'until docker-compose exec -T data mysqladmin ping -uroot --silent; do sleep 5; done'
+
+                       # Verify services
+                       docker-compose ps
+                   '''
+               }
+           }
+       }
+
     }
     post {
            always {
