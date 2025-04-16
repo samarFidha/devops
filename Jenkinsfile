@@ -10,16 +10,17 @@ pipeline {
     }
     stages {
         stage('Checkout Code') {
-            steps {
-                checkout([$class: 'GitSCM',
-                    branches: [[name: 'bechir']],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/samarFidha/devops.git',
-                        credentialsId: 'token'
-                    ]]]
-                )
-            }
-        }
+                   steps {
+                       checkout([$class: 'GitSCM',
+                           branches: [[name: 'bechir']],
+                           userRemoteConfigs: [[
+                               url: 'https://github.com/samarFidha/devops.git',
+                               credentialsId: 'token'
+                           ]]]
+                       )
+                   }
+               }
+
 
         stage('Clean Workspace') {
             steps {
