@@ -10,7 +10,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3309:3306"
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
@@ -25,7 +25,7 @@ services:
         data:
           condition: service_healthy
       ports:
-        - "8086:8081"
+        - "8089:8081"
       environment:
         SPRING_DATASOURCE_URL: jdbc:mysql://data:3306/foyer
         SPRING_DATASOURCE_USERNAME: root
@@ -36,7 +36,7 @@ services:
   prometheus:
     image: prom/prometheus
     ports:
-      - "9090:9090"
+      - "9095:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     command:
@@ -49,7 +49,7 @@ services:
   grafana:
     image: grafana/grafana
     ports:
-      - "3000:3000"
+      - "3009:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
