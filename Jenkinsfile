@@ -44,14 +44,14 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('SonarQube') {
             steps {
                 sh "mvn sonar:sonar -Dsonar.login=$SONARQUBE_CREDENTIALS_USR -Dsonar.password=$SONARQUBE_CREDENTIALS_PSW"
             }
         }
 
-        stage('Deploy to Nexus') {
+       stage('Deploy to Nexus') {
             steps {
             sh 'mvn deploy -Dskiptests=true'
             }}
@@ -68,7 +68,7 @@ pipeline {
                         '''
                     }
 }}
-
+*/
 
 
         stage("Start app and db") {
