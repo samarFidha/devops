@@ -24,7 +24,7 @@ pipeline {
 
  stage('MVN SONARQUBE') {
      steps {
-         withSonarQubeEnv('MySonarQubeServer') {
+         withSonarQubeEnv('SonarQube') {
              withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
                  // Affichage du token (juste pour debug)
                  sh 'echo "Token Sonar utilisé : $SONAR_TOKEN"'
