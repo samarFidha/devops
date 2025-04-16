@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'spring-boot'
+    metrics_path: '/Foyer/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['spring_app:8081']
+    scheme: 'http'
+    tls_config:
+      insecure_skip_verify: true
+    relabel_configs:
+      - source_labels: [__metrics_path__]
+        target_label: metrics_path
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: application
+        replacement: Foyer
+
