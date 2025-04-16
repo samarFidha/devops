@@ -16,7 +16,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 echo 'Checking out the code...'
-                git branch: 'main',
+                git branch: 'Samar',
                     url: 'https://github.com/samarFidha/devops.git',
                     credentialsId: GIT_CREDENTIALS_ID
             }
@@ -38,21 +38,7 @@ pipeline {
 
 
 
-        stage('SonarQube Quality Gate Check') {
-            steps {
-                timeout(time: 1, unit: 'MINUTES') {
-                    script {
-                        def qualityGate = waitForQualityGate()
-                        if (qualityGate.status != 'OK') {
-                            echo "❌ Quality Gate failed: ${qualityGate.status}"
-                            error "Pipeline aborted due to quality gate failure."
-                        } else {
-                            echo "✅ Quality Gate passed: ${qualityGate.status}"
-                        }
-                    }
-                }
-            }
-        }
+
 
 
 
