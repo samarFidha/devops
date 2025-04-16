@@ -7,7 +7,7 @@ services:
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
       - MYSQL_DATABASE=foyer
     ports:
-      - '3306:3306'
+      - '3302:3306'
     volumes:
       - mysql:/var/lib/mysql
       - $PWD/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -19,7 +19,7 @@ services:
     restart: on-failure
     build: .
     ports:
-      - 8081:8081
+      - "8085:8081"
     depends_on:
       - db
     command: ["./wait-for-db.sh", "java", "-jar", "your-spring-app.jar"]
@@ -27,7 +27,7 @@ services:
   prometheus:
     image: prom/prometheus
     ports:
-      - "9090:9090"
+      - "9092:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     command:
@@ -38,7 +38,7 @@ services:
   grafana:
     image: grafana/grafana
     ports:
-      - "3000:3000"
+      - "3002:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
