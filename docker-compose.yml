@@ -1,18 +1,21 @@
+version: '3.8'
+
 services:
   data:
     image: mysql:8.0
     container_name: data
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: "root"  # Must set a root password (can be simple for dev)
       MYSQL_DATABASE: foyer
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ""       # Set same as root password for simplicity
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"  # Explicitly disallow empty password
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
       - "3309:3306"
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 5s
       timeout: 10s
       retries: 10
@@ -20,18 +23,18 @@ services:
       - foyer-net
 
   pro-foyer:
-      image: bechirgarali/foyer-app:latest
-      depends_on:
-        data:
-          condition: service_healthy
-      ports:
-        - "8089:8081"
-      environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://data:3306/foyer
-        SPRING_DATASOURCE_USERNAME: root
-        SPRING_DATASOURCE_PASSWORD:
-      networks:
-        - foyer-net
+    image: bechirgarali/foyer-app:latest
+    depends_on:
+      data:
+        condition: service_healthy
+    ports:
+      - "8089:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://data:3306/foyer
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""  # Must match the MySQL password
+    networks:
+      - foyer-net
 
   prometheus:
     image: prom/prometheus
@@ -56,7 +59,7 @@ services:
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_DATASOURCES_DEFAULT_TYPE=prometheus
-      - GF_DATASOURCES_DEFAULT_URL=http://localhost:9090
+      - GF_DATASOURCES_DEFAULT_URL=http://prometheus:9090  # Changed from localhost
       - GF_DATASOURCES_DEFAULT_ACCESS=proxy
       - GF_DATASOURCES_DEFAULT_IS_DEFAULT=true
     volumes:
@@ -65,7 +68,6 @@ services:
       - prometheus
     networks:
       - foyer-net
-
 
 volumes:
   mysql_data:
