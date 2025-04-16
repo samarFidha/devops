@@ -39,7 +39,7 @@ pipeline {
                                 mvn verify sonar:sonar \
                                   -Dsonar.projectKey=sonar \
                                   -Dsonar.projectName='sonar' \
-                                  -Dsonar.host.url=http://http://172.24.32.66:9000 \
+                                  -Dsonar.host.url=http://172.24.32.66:9000 \
                                   -Dsonar.login=$SONAR_TOKEN \
                                   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                             '''
