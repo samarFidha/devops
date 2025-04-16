@@ -7,6 +7,13 @@ pipeline {
         NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
     }
     stages {
+
+    stage('Clean Workspace') {
+                steps {
+                    cleanWs()
+                }
+            }
+
         stage('Checkout Code') {
             steps {
                 checkout([$class: 'GitSCM',
