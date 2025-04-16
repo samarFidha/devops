@@ -19,7 +19,7 @@ services:
     networks:
       - foyer-net
 
-  foyer-app:
+  pro-foyer:
       image: bechirgarali/foyer-app:latest
       depends_on:
         foyer-db:
