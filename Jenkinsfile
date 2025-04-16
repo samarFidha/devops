@@ -1,26 +1,23 @@
 pipeline {
     agent any
     environment {
-
-         DOCKER_IMAGE = 'bechirgarali/foyer-app:latest'
-                NEXUS_URL = 'http://172.24.32.66:8081'
-                NEXUS_REPO_RELEASES = 'maven-releases'
-                NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
-
+        DOCKER_IMAGE = 'bechirgarali/foyer-app:latest'
+        NEXUS_URL = 'http://172.24.32.66:8081'
+        NEXUS_REPO_RELEASES = 'maven-releases'
+        NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
     }
     stages {
         stage('Checkout Code') {
-                   steps {
-                       checkout([$class: 'GitSCM',
-                           branches: [[name: 'bechir']],
-                           userRemoteConfigs: [[
-                               url: 'https://github.com/samarFidha/devops.git',
-                               credentialsId: 'token'
-                           ]]]
-                       )
-                   }
-               }
-
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: 'bechir']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/samarFidha/devops.git',
+                        credentialsId: 'token'
+                    ]]]
+                )
+            }
+        }
 
         stage('Clean Workspace') {
             steps {
@@ -46,27 +43,23 @@ pipeline {
             }
         }
 
-     stage('Deploy to Nexus') {
-         steps {
-             script {
-                 withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                     // Get the project version
-                     def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+        stage('Deploy to Nexus') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                        def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                        def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
 
-                     // Define Nexus repository based on version
-                     def repo = projectVersion.endsWith('-SNAPSHOT') ? 'maven-snapshots' : 'maven-releases'
-
-                     // Deploy to Nexus
-                     sh """
-                         echo "Deploying to Nexus Repository: ${repo}"
-                         mvn clean deploy \
-                         -s /usr/share/maven/conf/settings.xml \
-                         -DskipTests
-                     """
-                 }
-             }
-         }
-     }
+                        sh """
+                            mvn deploy \
+                            -s settings.xml \
+                            -DskipTests \
+                            -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}
+                        """
+                    }
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -87,18 +80,36 @@ pipeline {
             }
         }
 
+        stage('Verify Docker Compose') {
+            steps {
+                script {
+                    // Check if docker compose is available (either as docker-compose or docker compose)
+                    sh '''
+                        if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
+                            echo "ERROR: Neither 'docker-compose' nor 'docker compose' command is available"
+                            echo "Please ensure Docker Compose is installed on all Jenkins agents"
+                            exit 1
+                        fi
+                    '''
+                }
+            }
+        }
+
         stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    // Install docker-compose if not present
+                    // Try both modern (docker compose) and legacy (docker-compose) syntax
                     sh '''
-                        if ! command -v docker-compose &> /dev/null; then
-                            echo "docker-compose not found, installing..."
-                            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                            sudo chmod +x /usr/local/bin/docker-compose
+                        if docker compose version &> /dev/null; then
+                            echo "Using modern Docker Compose (docker compose)"
+                            docker compose up -d
+                        elif command -v docker-compose &> /dev/null; then
+                            echo "Using legacy Docker Compose (docker-compose)"
+                            docker-compose up -d
+                        else
+                            echo "ERROR: No Docker Compose command available"
+                            exit 1
                         fi
-                        docker-compose --version
-                        docker-compose up -d
                     '''
                 }
             }
