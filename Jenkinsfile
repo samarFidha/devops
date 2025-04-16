@@ -35,13 +35,6 @@ pipeline {
          }
      }
  }
-
-
-
-
-
-
-
         stage('Build with Maven') {
             steps {
                 echo 'Building the Maven project...'
@@ -53,10 +46,23 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                dir('docker') {
-                    sh 'ls -l'
-                    sh "docker build -t ${DOCKER_IMAGE} ."
+                script {
+
+                                       def imageName = "${env.JOB_NAME}:${env.BUILD_NUMBER}"
+
+                                        sh ' cd docker'
+
+                                        sh ' ls -l'
+
+                                       // Construire l'image Docker
+
+                                       sh 'docker build -t ${DOCKER_IMAGE}  .'
+
+                                     //  sh 'docker build -t samar:1.0.0  -f /docker/Dockerfile .'
+
                 }
+
+
             }
         }
 
