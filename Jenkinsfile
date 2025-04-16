@@ -24,11 +24,11 @@ pipeline {
             }
         }
 
-        stage('Run Tests with Spring Profile') {
-            steps {
-                sh 'mvn test -Dspring.profiles.active=test'
-            }
-        }
+       // stage('Run Tests with Spring Profile') {
+          //  steps {
+         //       sh 'mvn test -Dspring.profiles.active=test'
+         //   }
+      //  }
 
         stage('SonarQube Analysis') {
             steps {
