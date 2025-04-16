@@ -44,7 +44,7 @@ pipeline {
                 }
             }
         }
-/*
+
         stage('SonarQube') {
             steps {
                 sh "mvn sonar:sonar -Dsonar.login=$SONARQUBE_CREDENTIALS_USR -Dsonar.password=$SONARQUBE_CREDENTIALS_PSW"
@@ -68,7 +68,7 @@ pipeline {
                         '''
                     }
 }}
-*/
+
 
 
         stage("Start app and db") {
