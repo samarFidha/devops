@@ -22,23 +22,21 @@ pipeline {
             }
         }
 
+ stage('MVN SONARQUBE') {
+     steps {
+         withSonarQubeEnv('MySonarQubeServer') {
+             withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                 // Affichage du token (juste pour debug)
+                 sh 'echo "Token Sonar utilisé : $SONAR_TOKEN"'
 
-        stage('SonarQube Code Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool name: 'SonarQube', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                    withSonarQubeEnv('SonarQube') {
-                        echo "Running SonarQube analysis..."
-                        sh "${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=devops \
-                            -Dsonar.sources=src \
-                            -Dsonar.java.binaries=target \
-                            -Dsonar.host.url=${SONAR_HOST_URL} \
-                            -Dsonar.login=${SONAR_TOKEN}"
-                    }
-                }
-            }
-        }
+                 // Lancement de l'analyse
+                 sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN'
+             }
+         }
+     }
+ }
+
+
 
         stage('SonarQube Quality Gate Check') {
             steps {
