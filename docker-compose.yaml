@@ -15,7 +15,7 @@ services:
 
   spring_app:
     container_name: foyer-app
-    image: foyer-app:latest
+    image: bechirgarali/foyer-app:latest
     restart: on-failure
     build: .
     ports:
@@ -41,7 +41,7 @@ services:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=211JFT9368
+      - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_DATASOURCES_DEFAULT_TYPE=prometheus
