@@ -18,45 +18,54 @@ pipeline {
                 )
             }
         }
+
         stage('Clean Workspace') {
             steps {
                 sh 'mvn clean'
             }
         }
 
-        stage('Run Tests with Spring Profile') {
+        stage('Run Tests') {
             steps {
                 sh 'mvn test -Dspring.profiles.active=test'
             }
+            post {
+                always {
+                    junit '**/target/surefire-reports/**/*.xml'
+                    archiveArtifacts '**/target/surefire-reports/**/*.*'
+                }
+            }
         }
 
+        stage('Build Application') {
+            steps {
+                sh 'mvn package -DskipTests'
+            }
+        }
 
+        stage('Deploy to Nexus') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                        def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                        def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
 
-  stage('Deploy to Nexus') {
-      steps {
-          script {
-              withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                  // Get the project version
-                  def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
-
-                  // Define Nexus repository based on version
-                  def repo = projectVersion.endsWith('-SNAPSHOT') ? 'maven-snapshots' : 'maven-releases'
-
-                  // Deploy to Nexus
-                  sh """
-                      echo "Deploying to Nexus Repository: ${repo}"
-                      mvn clean deploy \
-                      -s /usr/share/maven/conf/settings.xml \
-                      -DskipTests
-                  """
-              }
-          }
-      }
-  }
+                        sh """
+                            mvn deploy \
+                            -s settings.xml \
+                            -DskipTests \
+                            -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo}
+                        """
+                    }
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t $DOCKER_IMAGE ."
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE} ."
+                }
             }
         }
 
@@ -64,20 +73,29 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                        sh "docker push $DOCKER_IMAGE"
+                        sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                        sh "docker push ${DOCKER_IMAGE}"
                     }
                 }
             }
         }
 
- stage("Start app and db") {
+        stage('Deploy with Docker Compose') {
             steps {
-                sh "docker-compose up -d"
+                script {
+                    // Install docker-compose if not present
+                    sh '''
+                        if ! command -v docker-compose &> /dev/null; then
+                            echo "docker-compose not found, installing..."
+                            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                            sudo chmod +x /usr/local/bin/docker-compose
+                        fi
+                        docker-compose --version
+                        docker-compose up -d
+                    '''
+                }
             }
         }
-
-
     }
     post {
         success {
@@ -85,6 +103,9 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed! Please check the logs.'
+        }
+        always {
+            cleanWs()
         }
     }
 }
