@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     environment {
         DOCKER_IMAGE = 'bechirgarali/foyer-app:latest'
         NEXUS_URL = 'http://172.24.32.66:8081'
@@ -7,14 +8,13 @@ pipeline {
         NEXUS_REPO_SNAPSHOTS = 'maven-snapshots'
     }
 
-
     stages {
 
-    stage('Clean GIT') {
-                steps {
-                    cleanWs()
-                }
+        stage('Clean GIT') {
+            steps {
+                cleanWs()
             }
+        }
 
         stage('Checkout Code') {
             steps {
@@ -23,8 +23,8 @@ pipeline {
                     userRemoteConfigs: [[
                         url: 'https://github.com/samarFidha/devops.git',
                         credentialsId: 'token'
-                    ]]]
-                )
+                    ]]
+                ])
             }
         }
 
@@ -52,8 +52,6 @@ pipeline {
             }
         }
 
-
-
         stage('Build Docker Image') {
             steps {
                 script {
@@ -73,68 +71,68 @@ pipeline {
             }
         }
 
-       stage('Deploy with Docker Compose') {
-                   steps {
-                       script {
-                           // Simplified deployment using whichever compose command is available
-                            sh '''
-                            docker compose down
-                                                    # Start services with health checks
-                                                    if docker compose version >/dev/null 2>&1; then
-                                                        echo "Using modern Docker Compose (docker compose)"
-docker compose down --remove-orphans
+        stage('Deploy with Docker Compose') {
+            steps {
+                script {
+                    sh '''
+                        echo "Stopping existing containers..."
+                        docker compose down --remove-orphans || true
 
-                                                        docker compose up -d --wait
-                                                    elif command -v docker-compose >/dev/null 2>&1; then
-                                                        echo "Using legacy Docker Compose (docker-compose)"
-docker compose down --remove-orphans
+                        if docker compose version >/dev/null 2>&1; then
+                            echo "Using modern Docker Compose (docker compose)"
+                            docker compose up -d
+                        elif command -v docker-compose >/dev/null 2>&1; then
+                            echo "Using legacy Docker Compose (docker-compose)"
+                            docker-compose up -d
+                            echo "Waiting for containers to initialize..."
+                            sleep 30
+                        else
+                            echo "ERROR: No Docker Compose command available"
+                            exit 1
+                        fi
 
-                                                        docker-compose up -d
-                                                        # Add manual wait for legacy compose
-                                                        docker-compose ps | grep -q healthy || sleep 30
-                                                    else
-                                                        echo "ERROR: No Docker Compose command available"
-                                                        exit 1
-                                                    fi
-
-                                                    # Verify all containers are healthy
-                                                    if ! docker ps --format '{{.Names}} {{.Status}}' | grep -v 'healthy'; then
-                                                        echo "All containers started successfully"
-                                                    else
-                                                        echo "Some containers failed to start:"
-                                                        docker ps -a
-                                                        echo "Logs from foyer-db:"
-                                                        docker logs foyer-db
-                                                        exit 1
-                                                    fi
-                                                '''
-                       }
-                   }
+                        echo "Checking container health statuses..."
+                        UNHEALTHY=$(docker ps --filter 'health=unhealthy' --format '{{.Names}}')
+                        if [ -z "$UNHEALTHY" ]; then
+                            echo "✅ All containers are healthy."
+                        else
+                            echo "❌ Some containers are unhealthy: $UNHEALTHY"
+                            docker ps -a
+                            echo "Logs from foyer-db:"
+                            docker logs foyer-db || true
+                            echo "Logs from foyer-app:"
+                            docker logs foyer-app || true
+                            exit 1
+                        fi
+                    '''
+                }
+            }
         }
     }
+
     post {
-           always {
-               // Capture docker logs if pipeline fails
-               script {
-                   if (currentBuild.result == 'FAILURE') {
-                       sh '''
-                           echo "Docker container status:"
-                           docker ps -a
-                           echo "Logs from foyer-db:"
-                           docker logs foyer-db || true
-                           echo "Logs from foyer-app:"
-                           docker logs foyer-app || true
-                       '''
-                   }
-               }
-               cleanWs()
-           }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed! Please check the logs.'
+        always {
+            script {
+                if (currentBuild.result == 'FAILURE') {
+                    sh '''
+                        echo "🔍 Docker container status:"
+                        docker ps -a
+                        echo "📄 Logs from foyer-db:"
+                        docker logs foyer-db || true
+                        echo "📄 Logs from foyer-app:"
+                        docker logs foyer-app || true
+                    '''
+                }
+            }
+            cleanWs()
         }
 
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+
+        failure {
+            echo '❌ Pipeline failed! Please check the logs.'
+        }
     }
 }
