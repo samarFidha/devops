@@ -89,26 +89,53 @@ pipeline {
                    steps {
                        script {
                            // Simplified deployment using whichever compose command is available
-                           sh '''
-                               # Try modern Docker Compose first, then fall back to legacy
-                               if docker compose version >/dev/null 2>&1; then
-                                   echo "Using modern Docker Compose (docker compose)"
-                                   docker compose up -d
-                               elif command -v docker-compose >/dev/null 2>&1; then
-                                   echo "Using legacy Docker Compose (docker-compose)"
-                                   docker-compose up -d
-                               else
-                                   echo "ERROR: No Docker Compose command available"
-                                   echo "Available commands:"
-                                   docker --help
-                                   exit 1
-                               fi
-                           '''
+                            sh '''
+                                                    # Start services with health checks
+                                                    if docker compose version >/dev/null 2>&1; then
+                                                        echo "Using modern Docker Compose (docker compose)"
+                                                        docker compose up -d --wait
+                                                    elif command -v docker-compose >/dev/null 2>&1; then
+                                                        echo "Using legacy Docker Compose (docker-compose)"
+                                                        docker-compose up -d
+                                                        # Add manual wait for legacy compose
+                                                        docker-compose ps | grep -q healthy || sleep 30
+                                                    else
+                                                        echo "ERROR: No Docker Compose command available"
+                                                        exit 1
+                                                    fi
+
+                                                    # Verify all containers are healthy
+                                                    if ! docker ps --format '{{.Names}} {{.Status}}' | grep -v 'healthy'; then
+                                                        echo "All containers started successfully"
+                                                    else
+                                                        echo "Some containers failed to start:"
+                                                        docker ps -a
+                                                        echo "Logs from foyer-db:"
+                                                        docker logs foyer-db
+                                                        exit 1
+                                                    fi
+                                                '''
                        }
                    }
         }
     }
     post {
+           always {
+               // Capture docker logs if pipeline fails
+               script {
+                   if (currentBuild.result == 'FAILURE') {
+                       sh '''
+                           echo "Docker container status:"
+                           docker ps -a
+                           echo "Logs from foyer-db:"
+                           docker logs foyer-db || true
+                           echo "Logs from foyer-app:"
+                           docker logs foyer-app || true
+                       '''
+                   }
+               }
+               cleanWs()
+           }
         success {
             echo 'Pipeline completed successfully!'
         }
