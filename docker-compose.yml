@@ -20,7 +20,7 @@ services:
       - foyer-net
 
   pro-foyer:
-    image: bechir/foyer:1.0.0
+    image: bechirgarali/foyer-app:latest
     container_name: foyer-app
     restart: unless-stopped
     depends_on:
