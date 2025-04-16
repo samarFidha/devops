@@ -9,7 +9,6 @@ pipeline {
     }
 
     stages {
-
         stage('Clean GIT') {
             steps {
                 cleanWs()
@@ -23,8 +22,7 @@ pipeline {
                     userRemoteConfigs: [[
                         url: 'https://github.com/samarFidha/devops.git',
                         credentialsId: 'token'
-                    ]]
-                ])
+                    ]])
             }
         }
 
