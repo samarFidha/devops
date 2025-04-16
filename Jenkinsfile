@@ -85,39 +85,27 @@ pipeline {
             }
         }
 
-        stage('Verify Docker Compose') {
-            steps {
-                script {
-                    // Check if docker compose is available (either as docker-compose or docker compose)
-                    sh '''
-                        if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-                            echo "ERROR: Neither 'docker-compose' nor 'docker compose' command is available"
-                            echo "Please ensure Docker Compose is installed on all Jenkins agents"
-                            exit 1
-                        fi
-                    '''
-                }
-            }
-        }
-
-        stage('Deploy with Docker Compose') {
-            steps {
-                script {
-                    // Try both modern (docker compose) and legacy (docker-compose) syntax
-                    sh '''
-                        if docker compose version &> /dev/null; then
-                            echo "Using modern Docker Compose (docker compose)"
-                            docker compose up -d
-                        elif command -v docker-compose &> /dev/null; then
-                            echo "Using legacy Docker Compose (docker-compose)"
-                            docker-compose up -d
-                        else
-                            echo "ERROR: No Docker Compose command available"
-                            exit 1
-                        fi
-                    '''
-                }
-            }
+       stage('Deploy with Docker Compose') {
+                   steps {
+                       script {
+                           // Simplified deployment using whichever compose command is available
+                           sh '''
+                               # Try modern Docker Compose first, then fall back to legacy
+                               if docker compose version >/dev/null 2>&1; then
+                                   echo "Using modern Docker Compose (docker compose)"
+                                   docker compose up -d
+                               elif command -v docker-compose >/dev/null 2>&1; then
+                                   echo "Using legacy Docker Compose (docker-compose)"
+                                   docker-compose up -d
+                               else
+                                   echo "ERROR: No Docker Compose command available"
+                                   echo "Available commands:"
+                                   docker --help
+                                   exit 1
+                               fi
+                           '''
+                       }
+                   }
         }
     }
     post {
@@ -127,8 +115,6 @@ pipeline {
         failure {
             echo 'Pipeline failed! Please check the logs.'
         }
-        always {
-            cleanWs()
-        }
+
     }
 }
