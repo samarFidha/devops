@@ -22,7 +22,8 @@ pipeline {
                     userRemoteConfigs: [[
                         url: 'https://github.com/samarFidha/devops.git',
                         credentialsId: 'token'
-                    ]])
+                    ]]
+                ])
             }
         }
 
