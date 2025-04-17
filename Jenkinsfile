@@ -113,16 +113,23 @@ pipeline {
 
 
 
-        stage('Deploy Container') {
-            steps {
-                echo 'Deploying the container...'
-                sh 'docker stop springboot-app || true'
-                sh 'docker rm springboot-app || true'
-                sh '''
-                    docker run -d -p 8081:8080 --name springboot-app ${DOCKER_IMAGE}
-                '''
-            }
-        }
+ stage('Deploy Container') {
+     steps {
+         echo 'Deploying the container...'
+         sh '''
+             # Arrêter et supprimer l'ancien conteneur nommé springboot-app
+             docker stop springboot-app || true
+             docker rm springboot-app || true
+
+             # Arrêter et supprimer tout conteneur qui utilise déjà le port 8081
+             docker ps --filter "publish=8081" --format "{{.ID}}" | xargs -r docker stop
+             docker ps -a --filter "publish=8081" --format "{{.ID}}" | xargs -r docker rm
+
+             # Lancer le nouveau conteneur
+             docker run -d -p 8081:8080 --name springboot-app ${DOCKER_IMAGE}
+         '''
+     }
+ }
 
 
     stage('Deploy to Nexus') {
