@@ -47,14 +47,24 @@ pipeline {
 
 
 
-        stage('Build with Maven') {
-            steps {
-                echo 'Building the Maven project...'
-                sh 'mvn clean package'
-                sh 'ls -l target/'
-            }
-        }
+       stage('Build with Maven') {
 
+                   steps {
+
+                       echo 'Building the Maven project...'
+
+                       script {
+
+                           sh 'mvn clean package'
+
+                           sh 'ls -l target/'
+
+                           echo " target of artifact"
+
+                       }
+
+                   }
+                   }
 
 
 
