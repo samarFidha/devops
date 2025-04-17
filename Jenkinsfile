@@ -31,7 +31,8 @@ pipeline {
                     userRemoteConfigs: [[
                         url: 'https://github.com/samarFidha/devops.git',
                         credentialsId: 'token'
-                    ]])
+                    ]]
+                ])
             }
         }
 
@@ -52,38 +53,31 @@ pipeline {
                 }
             }
         }
+       stage('Deploy to Nexus') {
+           steps {
+               script {
+                   withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                       // Get the project version
+                       def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
 
-        stage('Check Nexus Connectivity') {
-            steps {
-                script {
-                    echo "Checking if Nexus is reachable..."
-                    // Check if Nexus is reachable
-                    sh 'curl -v http://172.24.32.66:8081/repository/maven-releases/ || exit 1'
-                }
-            }
-        }
+                       // Define Nexus repository based on version
+                       def repo = projectVersion.endsWith('-SNAPSHOT') ? NEXUS_REPO_SNAPSHOTS : NEXUS_REPO_RELEASES
 
-        stage('Deploy to Nexus') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        // Get the project version
-                        def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                       // Deploy to Nexus
+                       sh """
+                           echo "🔁 Deploying to Nexus Repository: ${repo}"
+                           mvn clean deploy \
+                           -DskipTests \
+                           -DaltDeploymentRepository=${repo}::default::${NEXUS_URL}/repository/${repo} \
+                           -Dnexus.username=${NEXUS_USER} \
+                           -Dnexus.password=${NEXUS_PASS}
+                       """
+                   }
+               }
+           }
+       }
 
-                        // Define Nexus repository based on version
-                        def repo = projectVersion.endsWith('-SNAPSHOT') ? 'maven-snapshots' : 'maven-releases'
 
-                        // Deploy to Nexus
-                        sh """
-                            echo "Deploying to Nexus Repository: ${repo}"
-                            mvn clean deploy \
-                            -DaltDeploymentRepository=${repo}::default::http://172.24.32.66:8081/repository/${repo}/ \
-                            -DskipTests
-                        """
-                    }
-                }
-            }
-        }
 
         stage('Build Application') {
             steps {
