@@ -141,6 +141,8 @@ pipeline {
                                -Durl=http://172.30.46.120:8081/repository/maven-snapshots/ \
                                -Dusername=$NEXUS_USER \
                                -Dpassword=$NEXUS_PASS
+                               -DaltDeploymentRepository=nexus-snapshots::default::http://172.30.46.120:8081/repository/maven-snapshots/
+
                        """
                    }
                }
