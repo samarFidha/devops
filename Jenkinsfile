@@ -89,13 +89,16 @@ pipeline {
             }
         }
 
-        stage('Nexus') {
-            steps {
-                echo 'Configuring Nexus...'
-                sh 'mvn clean'
-                sh 'mvn package -DskipTests'
+
+
+
+         stage('artifact upload') {
+                    steps {
+                        nexusArtifactUploader artifacts: [[artifactId: '', classifier: '', file: '/target/Foyer-0.0.1-SNAPSHOT.jar', type: '.jar']], credentialsId: 'nexus', groupId: '', nexusUrl: '172.30.46.120:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'devops', version: '1.2.2'
+                    }
+                }
+
             }
-        }
 
         stage('Run Tests') {
             steps {
