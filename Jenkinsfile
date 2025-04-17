@@ -54,23 +54,24 @@ pipeline {
             }
         }
          stage('SonarQube Analysis') {
-                    steps {
-                        script {
-                            withSonarQubeEnv('SonarQube') {
-                                withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
-                                    sh '''
-                                        mvn verify sonar:sonar \
-                                          -Dsonar.projectKey=sonar \
-                                          -Dsonar.projectName='sonar' \
-                                          -Dsonar.host.url=http://192.168.1.100:9000
-                                          -Dsonar.login=$SONAR_TOKEN \
-                                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                                    '''
-                                }
-                            }
-                        }
-                    }
-                }
+             steps {
+                 script {
+                     withSonarQubeEnv('SonarQube') {
+                         withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
+                             sh '''
+                                 mvn verify sonar:sonar \
+                                   -Dsonar.projectKey=sonar \
+                                   -Dsonar.projectName='sonar' \
+                                   -Dsonar.host.url=http://172.17.0.1:9000 \
+                                   -Dsonar.login=$SONAR_TOKEN \
+                                   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                             '''
+                         }
+                     }
+                 }
+             }
+         }
+
        stage('Deploy to Nexus') {
            steps {
                script {
