@@ -53,6 +53,28 @@ pipeline {
                 }
             }
         }
+          stage('Deploy to Nexus') {
+              steps {
+                  script {
+                      withCredentials([usernamePassword(credentialsId: 'nexusCredentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                          // Get the project version
+                          def projectVersion = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+
+                          // Define Nexus repository based on version
+                          def repo = projectVersion.endsWith('-SNAPSHOT') ? 'maven-snapshots' : 'maven-releases'
+
+                          // Deploy to Nexus
+                          sh """
+                              echo "Deploying to Nexus Repository: ${repo}"
+                              mvn clean deploy \
+                              -s /usr/share/maven/conf/settings.xml \
+                              -DskipTests
+                          """
+                      }
+                  }
+              }
+          }
+
 
         stage('Build Application') {
             steps {
