@@ -33,10 +33,10 @@ pipeline {
      steps {
          withSonarQubeEnv('SonarQube') {
              withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-                 // Affichage du token (juste pour debug)
+
                  sh 'echo "Token Sonar utilisé : $SONAR_TOKEN"'
 
-                 // Lancement de l'analyse
+
                  sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN'
              }
          }
