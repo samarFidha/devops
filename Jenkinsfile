@@ -56,16 +56,19 @@ pipeline {
             stage('SonarQube Analysis') {
                 steps {
                     script {
-                        withSonarQubeEnv('SonarQube') {
-                            sh '''
-                                mvn verify sonar:sonar \
-                                  -Dsonar.projectKey=sonar \
-                                  -Dsonar.projectName='sonar' \
-                                  -Dsonar.host.url=http://172.24.32.66:9000 \
-                                  -Dsonar.token=YOUR_SONARQUBE_TOKEN_HERE \
-                                  -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                            '''
-                        }
+                       withSonarQubeEnv('SonarQube') {
+                           withCredentials([string(credentialsId: 'sonarToken', variable: 'SONAR_TOKEN')]) {
+                               sh '''
+                                   mvn verify sonar:sonar \
+                                     -Dsonar.projectKey=sonar \
+                                     -Dsonar.projectName='sonar' \
+                                     -Dsonar.host.url=http://172.24.32.66:9000 \
+                                     -Dsonar.login=$SONAR_TOKEN \
+                                     -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                               '''
+                           }
+                       }
+
                     }
                 }
             }
