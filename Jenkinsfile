@@ -3,13 +3,15 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'samarelfidha/alpine:latest'
-        DOCKER_CREDENTIALS_ID = 'samar-PAT'
-        GIT_CREDENTIALS_ID = 'PAT-SAMAR'
         ARTIFACT_NAME = 'Foyer-0.0.1-SNAPSHOT.jar'
         GROUP_ID = 'tn/esprit/spring'
         ARTIFACT_VERSION = '0.0.1-SNAPSHOT'
         SONAR_HOST_URL = 'http://172.30.46.120:9000/'
+        DOCKER_CREDENTIALS_ID = 'samar-PAT'
+        GIT_CREDENTIALS_ID = 'PAT-SAMAR'
+        NEXUS_CREDENTIALS_ID= 'nexus-hub-credentials'
         SONAR_CREDENTIALS_ID = 'sonarqube-credentials'
+
     }
 
     stages {
@@ -21,6 +23,11 @@ pipeline {
                     credentialsId: GIT_CREDENTIALS_ID
             }
         }
+
+
+
+
+
 
  stage('MVN SONARQUBE') {
      steps {
@@ -35,6 +42,11 @@ pipeline {
          }
      }
  }
+
+
+
+
+
         stage('Build with Maven') {
             steps {
                 echo 'Building the Maven project...'
@@ -42,6 +54,11 @@ pipeline {
                 sh 'ls -l target/'
             }
         }
+
+
+
+
+
 
         stage('Build Docker Image') {
             steps {
@@ -62,6 +79,11 @@ pipeline {
 
             }
         }
+
+
+
+
+
         stage('Push to Docker Hub') {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
@@ -78,6 +100,12 @@ pipeline {
             }
         }
 
+
+
+
+
+
+
         stage('Deploy Container') {
             steps {
                 echo 'Deploying the container...'
@@ -90,13 +118,22 @@ pipeline {
         }
 
 
-        stage('Run Tests') {
-            steps {
-                echo 'Running tests...'
-                sh 'mvn test'
-            }
-        }
-    }
+    stage('Deploy to Nexus') {
+               steps {
+                   withCredentials([usernamePassword(credentialsId: 'nexus-deploy-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                       sh """
+                           mvn deploy -s /usr/share/maven/conf/settings.xml \
+                               -DrepositoryId=nexus-snapshots \
+                               -Durl=http://172.30.46.120:8081/repository/maven-snapshots/ \
+                               -Dusername=$NEXUS_USER \
+                               -Dpassword=$NEXUS_PASS
+                       """
+                   }
+               }
+           }
+
+
+
 
     post {
         success {
