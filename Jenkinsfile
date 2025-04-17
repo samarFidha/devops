@@ -63,7 +63,7 @@ pipeline {
                                   -Dsonar.projectKey=sonar \
                                   -Dsonar.projectName='sonar' \
                                   -Dsonar.host.url=http://172.24.32.66:9000 \
-                                  -Dsonar.login=$SONAR_TOKEN \
+                                  -Dsonar.token=$SONAR_TOKEN \
                                   -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                             '''
                         }
@@ -71,6 +71,7 @@ pipeline {
                 }
             }
         }
+
 
 
        stage('Deploy to Nexus') {
