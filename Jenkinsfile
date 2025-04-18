@@ -58,14 +58,14 @@ pipeline {
             stage("Build Docker Image"){
             steps{
                 script {
-/*
+
                         sh '''
                            docker build \
                                                              --build-arg NEXUS_BASE_URL=${NEXUS_BASE_URL} \
                                                              --build-arg NEXUS_REPOSITORY=${NEXUS_REPOSITORY} \
                                                              --build-arg NEXUS_ARTIFACT_VERSION=${NEXUS_ARTIFACT_VERSION} \
                                                              -t foyer-app:latest .
-                        '''*/
+                        '''
                     }
 }}
 
