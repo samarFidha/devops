@@ -9,7 +9,7 @@ pipeline {
         SONAR_HOST_URL = 'http://172.30.46.120:9000/'
         DOCKER_CREDENTIALS_ID = 'samar-PAT'
         GIT_CREDENTIALS_ID = 'PAT-SAMAR'
-        NEXUS_CREDENTIALS_ID= 'nexus-hub-credentials'
+
         SONAR_CREDENTIALS_ID = 'sonarqube-credentials'
 
     }
@@ -131,24 +131,23 @@ pipeline {
      }
  }
 
+stage('Deploy to Nexus') {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: 'nexus-hub-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
+                ]) {
+                    sh '''
+                        mvn deploy \
+                          -DaltDeploymentRepository=nexus-releases::default::http://172.30.46.120:8081/repository/maven-releases/ \
+                          -Dnexus.username=${NEXUS_USER} \
+                          -Dnexus.password=${NEXUS_PASS} || true
+                    '''
+                }
+            }
+        }
+    }
 
-    stage('Deploy to Nexus') {
-               steps {
-                   withCredentials([usernamePassword(credentialsId: 'nexus-deploy-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                       sh """
-                           mvn deploy -s /usr/share/maven/conf/settings.xml \
-                               -DrepositoryId=nexus-snapshots \
-                               -Durl=http://172.30.46.120:8081/repository/maven-snapshots/ \
-                               -Dusername=$NEXUS_USER \
-                               -Dpassword=$NEXUS_PASS
-                               -DaltDeploymentRepository=nexus-snapshots::default::http://172.30.46.120:8081/repository/maven-snapshots/
 
-                       """
-                   }
-               }
-           }
-
-}
 
 
     post {
