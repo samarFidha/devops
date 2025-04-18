@@ -8,10 +8,10 @@ scrape_configs:
       - targets: ['prometheus:9090']  # Prometheus itself
 
   - job_name: 'spring-boot'
-    metrics_path: '/Foyer/actuator/prometheus'  # 👈 Include your context path
+    metrics_path: '/Foyer/actuator/prometheus'  # 👈 Keep the context path
     scrape_interval: 5s
     static_configs:
-      - targets: ['172.30.201.44:8082']  # 👈 Use WSL-accessible host IP
+      - targets: ['172.30.201.44:8082']  # 👈 Updated IP and port to match the Spring Boot app
     scheme: 'http'
     tls_config:
       insecure_skip_verify: true
