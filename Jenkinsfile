@@ -74,6 +74,44 @@ pipeline {
             }
         }
 
+        stage('Deploy with Docker Compose') {
+            steps {
+                script {
+                    sh '''
+                        echo "Stopping existing containers..."
+                        docker compose down --remove-orphans || true
+
+                        if docker compose version >/dev/null 2>&1; then
+                            echo "Using modern Docker Compose (docker compose)"
+                            docker compose up -d
+                        elif command -v docker-compose >/dev/null 2>&1; then
+                            echo "Using legacy Docker Compose (docker-compose)"
+                            docker-compose up -d
+                            echo "Waiting for containers to initialize..."
+                            sleep 30
+                        else
+                            echo "ERROR: No Docker Compose command available"
+                            exit 1
+                        fi
+
+                        echo "Checking container health statuses..."
+                        UNHEALTHY=$(docker ps --filter 'health=unhealthy' --format '{{.Names}}')
+                        if [ -z "$UNHEALTHY" ]; then
+                            echo "✅ All containers are healthy."
+                        else
+                            echo "❌ Some containers are unhealthy: $UNHEALTHY"
+                            docker ps -a
+                            echo "Logs from foyer-db:"
+                            docker logs foyer-db || true
+                            echo "Logs from foyer-app:"
+                            docker logs foyer-app || true
+                            exit 1
+                        fi
+                    '''
+                }
+            }
+        }
+
         stage('Deploy to Nexus') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'nexus-deploy-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
@@ -86,6 +124,24 @@ pipeline {
                     """
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            script {
+                if (currentBuild.result == 'FAILURE') {
+                    sh '''
+                        echo "🔍 Docker container status:"
+                        docker ps -a
+                        echo "📄 Logs from foyer-db:"
+                        docker logs foyer-db || true
+                        echo "📄 Logs from foyer-app:"
+                        docker logs foyer-app || true
+                    '''
+                }
+            }
+            cleanWs()
         }
     }
 }
