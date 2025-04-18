@@ -45,11 +45,12 @@ public class BlocService implements IBlocService {
     public List<Bloc> findAll() {
         return repo.findAll();
     }
-
     @Override
     public Bloc findById(long id) {
-        return repo.findById(id).get();
+        return repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Bloc not found with id: " + id));
     }
+
 
     @Override
     public void deleteById(long id) {
@@ -74,13 +75,11 @@ public class BlocService implements IBlocService {
             Chambre chambre=chambreRepository.findByNumeroChambre(nu);
             chambres.add(chambre);
         }
-        // Keyword (2ème méthode)
-        //chambres=chambreRepository.findAllByNumeroChambre(numChambre);
-        //2 Parent==>Chambre  Child==> Bloc
+
         for (Chambre cha : chambres) {
-            //3 On affecte le child au parent
+
                 cha.setBloc(b);
-            //4 save du parent
+
                 chambreRepository.save(cha);
         }
         return b;
@@ -90,7 +89,7 @@ public class BlocService implements IBlocService {
     public Bloc affecterBlocAFoyer(String nomBloc, String nomFoyer) {
         Bloc b = blocRepository.findByNomBloc(nomBloc); //Parent
         Foyer f = foyerRepository.findByNomFoyer(nomFoyer); //Child
-        //On affecte le child au parent
+
         b.setFoyer(f);
         return blocRepository.save(b);
     }
