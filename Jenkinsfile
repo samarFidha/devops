@@ -77,7 +77,7 @@ pipeline {
 
                                        def imageName = "${env.JOB_NAME}:${env.BUILD_NUMBER}"
 
-                                    sh 'ls -l' // juste pour vérifier les fichiers
+                                    sh 'ls -l'
                                     sh "docker build -t ${DOCKER_IMAGE} ."
 
 
