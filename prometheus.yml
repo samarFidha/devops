@@ -11,7 +11,7 @@ scrape_configs:
     metrics_path: '/Foyer/actuator/prometheus'  # 👈 Include your context path
     scrape_interval: 5s
     static_configs:
-      - targets: ['dev:8082']  # Correct port
+      - targets: ['172.30.201.44:8082']  # 👈 Use WSL-accessible host IP
     scheme: 'http'
     tls_config:
       insecure_skip_verify: true
